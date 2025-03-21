@@ -1,5 +1,3 @@
-#include <WatchdogTimer.h>
-
 #ifndef BUTTON_ACTIONS
 #define BUTTON_ACTIONS
 
