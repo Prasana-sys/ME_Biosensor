@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:\\Users\\prasa\\Documents\\Arduino\\libraries\\**",
+                "C:\\Users\\prasa\\AppData\\Local\\Arduino15\\libraries\\**",
+                "C:\\Users\\prasa\\AppData\\Local\\Arduino15\\packages\\SiliconLabs\\hardware\\silabs\\2.2.0\\cores\\silabs\\**",
+                "C:\\Users\\prasa\\AppData\\Local\\Arduino15\\packages\\SiliconLabs\\hardware\\silabs\\2.2.0\\variants\\bgm220explorerkit\\**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "windows-gcc-x64"
+        }
+    ],
+    "version": 4
+}
