@@ -1,4 +1,6 @@
 // Send ME sensor data over indictaions to mobile device
+// Displays results to 7in 800x480 touchscreen
+
 #include <Adafruit_RA8875.h>
 #include "ts_globalValues.h"
 #include "ts_mainScreen_Helper_Functions.h"
@@ -8,7 +10,6 @@
 #include "ble_dataHandler.h"
 
 void setup() {
-  // put your setup code here, to run once:
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LED_BUILTIN_INACTIVE);
 

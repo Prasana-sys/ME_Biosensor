@@ -2,7 +2,7 @@
 
 Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
 
-uint32_t parametersRingdown[5] = {400000, 450000, 1000, 10, 1};
+uint32_t parametersRingdown[5] = {100000, 1000000, 10000, 100, 1};
 
 bool isSettingsScreen = false;
 bool isChangingValue = false;
