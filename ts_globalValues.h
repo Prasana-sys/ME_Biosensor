@@ -83,10 +83,10 @@ const uint16_t sDoneButtonH = 60;
 
 // Numpad dimensions
 extern bool isChangingValue;
-const uint16_t sNumpadButtonW = 50;
-const uint16_t sNumpadButtonH = 50;
-const uint16_t sNumpadButtonStartX = 580;
-const uint16_t sNumpadButtonStartY = 110;
+const uint16_t sNumpadButtonW = 70;
+const uint16_t sNumpadButtonH = 70;
+const uint16_t sNumpadButtonStartX = 540;
+const uint16_t sNumpadButtonStartY = 80;
 const uint16_t sNumpadButtonSpacing = 10;
 // A 3x4 keypad layout (digits + Clear + OK)
 extern const char* keypadLabels[12];
