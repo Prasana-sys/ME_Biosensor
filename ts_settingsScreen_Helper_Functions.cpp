@@ -24,9 +24,13 @@ void drawSettingsButtons()
         {
             paramBuffer += " ms";
         }
-        const char *lines[2] = {buttonLabels[i], paramBuffer.c_str()};
 
-        drawCenteredMultiLine(tft, sParameterButtonX, sParameterButtonY[i], sParameterButtonW, sParameterButtonH, lines, 2);
+        std::string rangeText = std::string("Range: ") + std::string(parameterRanges[i].minValueText) + std::string("-") + 
+                                std::string(parameterRanges[i].maxValueText);
+
+        const char *lines[3] = {buttonLabels[i], paramBuffer.c_str(), rangeText.c_str()};
+
+        drawCenteredMultiLine(tft, sParameterButtonX, sParameterButtonY[i], sParameterButtonW, sParameterButtonH, lines, sizeof(lines) / sizeof(lines[0]));
     }
 
     // Done button
@@ -83,7 +87,7 @@ void drawChangingBox(changingParameter parameter, uint32_t newValue)
     tft.drawRect(310, 200, sParameterButtonW, sParameterButtonH, RA8875_BLACK);
 
     std::string paramBuffer = std::to_string(newValue);
-    std::string buttonLabel = std::string(buttonLabels[static_cast<int>(parameter) - 1]);
+    std::string buttonLabel = std::string(buttonLabels[static_cast<int>(parameter)]);
     if (buttonLabel == "Start Freq" || buttonLabel == "Stop Freq" || buttonLabel == "Step Size")
     {
         paramBuffer += " Hz";

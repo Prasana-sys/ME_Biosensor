@@ -194,7 +194,16 @@ void numpad0() {
 void numpadOK() {
   Serial.println("OK button pressed");
   if (isChangingValue){
-    parametersRingdown[static_cast<int>(selectedParameter) - 1] = newValue;
+
+    // Check if newValue is in valid range of selectedParameter
+    if (newValue < parameterRanges[static_cast<int>(selectedParameter)].minValue) {
+      newValue = parameterRanges[static_cast<int>(selectedParameter)].minValue;
+    }
+    else if (newValue > parameterRanges[static_cast<int>(selectedParameter)].maxValue) {
+      newValue = parameterRanges[static_cast<int>(selectedParameter)].maxValue;
+    }
+    
+    parametersRingdown[static_cast<int>(selectedParameter)] = newValue;
     // Clear out changing box
     tft.fillRect(310, 200, sParameterButtonW, sParameterButtonH, RA8875_WHITE);
 

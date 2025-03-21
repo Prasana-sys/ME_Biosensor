@@ -1,4 +1,5 @@
 #include "Adafruit_RA8875.h"
+#include <string>
 
 #ifndef GLOBAL_VALUES
 #define GLOBAL_VALUES
@@ -55,12 +56,25 @@ extern const char* buttonLabels[8];
 // 4 = Number of sweeps
 extern uint32_t parametersRingdown[5];
 
+typedef struct {
+    uint32_t minValue; // min and max value need to be given in relation to the smallest unit
+    uint32_t maxValue; // Example: 10 MHz needs to stored as 10000000 in maxValue
+    std::string minValueText;
+    std::string maxValueText;
+} rangeOfParameter;
+
+const rangeOfParameter parameterRanges[5] = {{.minValue = 1000, .maxValue = 10000000, .minValueText = "1 KHz", .maxValueText = "10 MHz"},
+                                    {.minValue = 1000, .maxValue = 10000000, .minValueText = "1 KHz", .maxValueText = "10 MHz"},
+                                    {.minValue = 100, .maxValue = 100000, .minValueText = "100 Hz", .maxValueText = "100 KHz"},
+                                    {.minValue = 0, .maxValue = 1000, .minValueText = "0 ms", .maxValueText = "1000 ms"},
+                                    {.minValue = 1, .maxValue = 10, .minValueText = "1", .maxValueText = "10"}};
+
 // Settings dimensions
 // isSettingsScreen to check if touch input was on settings screen or Graph Screen.
 extern bool isSettingsScreen;
 const uint16_t sParameterButtonY[5] = {20, 110, 200, 290, 380};
 const uint16_t sParameterButtonX = 20;
-const uint16_t sParameterButtonW = 180;
+const uint16_t sParameterButtonW = 200;
 const uint16_t sParameterButtonH = 80;
 const uint16_t sDoneButtonX = 340;
 const uint16_t sDoneButtonY = 410;
@@ -78,7 +92,7 @@ const uint16_t sNumpadButtonSpacing = 10;
 extern const char* keypadLabels[12];
 
 extern uint32_t newValue;
-enum class changingParameter {None, Start_Freq, Stop_Freq, Step_Size, Duration, Sweeps};
+enum class changingParameter {None = -1, Start_Freq, Stop_Freq, Step_Size, Duration, Sweeps};
 extern changingParameter selectedParameter;
 
 // Example data for the ringdown graph
