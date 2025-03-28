@@ -6,12 +6,9 @@
 #define GLOBAL_VALUES
 
 // RA8875 Library only supports hardware SPI at this time
-// Connect SCLK to UNO Digital #13 (Hardware SPI clock)
-// Connect MISO to UNO Digital #12 (Hardware SPI MISO)
-// Connect MOSI to UNO Digital #11 (Hardware SPI MOSI)
 #define RA8875_INT 10
 #define RA8875_CS 4
-#define RA8875_RESET 9
+#define RA8875_RESET 9 // Connected to SDA pin currently
 
 extern Adafruit_RA8875 tft;
 extern uint16_t tx, ty;

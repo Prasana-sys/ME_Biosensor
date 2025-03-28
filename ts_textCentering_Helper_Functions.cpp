@@ -9,7 +9,7 @@ void drawCenteredText(Adafruit_RA8875 &tft,
   tft.textEnlarge(enlarge);    // Set text scaling
 
   // Each char is (8*(enlarge+1)) wide, (16*(enlarge+1)) tall
-  int factor = enlarge + 1;
+  uint8_t factor = enlarge + 1;
   int charW = 8 * factor;
   int charH = 16 * factor;
 
@@ -57,7 +57,7 @@ void drawCenteredMultiLine(Adafruit_RA8875 &tft,
   int startY = y + (h - totalHeight) / 2;
 
   // Print each line
-  for (int i = 0; i < lineCount; i++) {
+  for (uint8_t i = 0; i < lineCount; i++) {
     int len        = strlen(lines[i]);
     int textWidth  = len * charW;
     int lineX      = x + (w - textWidth) / 2;   // center horizontally

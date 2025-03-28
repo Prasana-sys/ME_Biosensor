@@ -10,8 +10,8 @@ extern volatile uint8_t btn_state;
 
 const uint8_t advertised_name[] = "ME Biosensor";
 extern uint8_t connection_handle;
-extern uint16_t ringdownData_characteristic_handle;
-extern uint16_t ringdownParameters_characteristic_handle;
+extern uint8_t ringdownData_characteristic_handle;
+extern uint8_t ringdownParameters_characteristic_handle;
 
 extern bool clientReadyForNextIndication;
 extern uint32_t indicationIndex;  // Number of steps
@@ -24,7 +24,5 @@ typedef struct {
   uint32_t frequency;
 } ringdownData;
 #pragma pack(pop)
-
-// uint8_t *txBuffer = new uint8_t[sizeof(ringdownData)];
 
 #endif

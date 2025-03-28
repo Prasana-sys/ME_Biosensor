@@ -9,7 +9,7 @@ void drawSettingsButtons()
 {
 
     // Parameter buttons loop
-    for (int i = 0; i < 5; i++)
+    for (uint8_t i = 0; i < 5; i++)
     {
         tft.fillRect(sParameterButtonX, sParameterButtonY[i], sParameterButtonW, sParameterButtonH, RA8875_WHITE);
         // Draw the border for the button
@@ -40,11 +40,11 @@ void drawSettingsButtons()
 
 void drawSettingsNumpad()
 {
-    for (int row = 0; row < 4; row++)
+    for (uint8_t row = 0; row < 4; row++)
     {
-        for (int col = 0; col < 3; col++)
+        for (uint8_t col = 0; col < 3; col++)
         {
-            int index = row * 3 + col;
+            uint8_t index = row * 3 + col;
             int bx = sNumpadButtonStartX + col * (sNumpadButtonW + sNumpadButtonSpacing);
             int by = sNumpadButtonStartY + row * (sNumpadButtonH + sNumpadButtonSpacing);
 

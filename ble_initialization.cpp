@@ -61,8 +61,6 @@ void ble_initialize_gatt_db() {
     // uint8_t data_initial_value[20] = {0};
   
     const ringdownData ringdownInitialValue = { .duration = 0, .frequency = 0 };
-    // uint8_t *txBuffer = new uint8_t[sizeof(ringdownData)];
-    // memcpy(txBuffer, &ringdownInitialValue, sizeof(ringdownData));
   
     sc = sl_bt_gattdb_add_uuid128_characteristic(gattdb_session_id,
                                                  ME_sensor_service_handle,

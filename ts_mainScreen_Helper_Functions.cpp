@@ -64,7 +64,7 @@ void drawInfoBox()
     // Draw info rectangle
     tft.drawRect(infoX, infoY, infoW, infoH, RA8875_BLACK);
 
-    // Need to fill with text
+    // TODO: Need to fill with text
     tft.textMode();
     tft.textEnlarge(1);
     // tft.textSetCursor(textX, textY);

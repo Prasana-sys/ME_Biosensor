@@ -24,13 +24,9 @@ void handle_data_indication() {
   
     // ringdownData newData = { .duration = indicationIndex + 1, .frequency = 400000 + (100 * indicationIndex) };
     ringdownData newData = _ringdownData[indicationIndex];
-    // memcpy(txBuffer, &newData, sizeof(ringdownData));
   
     // Send the indication
     sl_bt_gatt_server_send_indication(connection_handle, ringdownData_characteristic_handle, sizeof(newData), (uint8_t *)&newData);
-  
-    // Wait for a second
-    // delay(1000);
 }
 
 void check_parameters_validity() {
