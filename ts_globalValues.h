@@ -96,16 +96,16 @@ extern uint32_t newValue;
 enum class changingParameter {None = -1, Start_Freq, Stop_Freq, Step_Size, Duration, Sweeps};
 extern changingParameter selectedParameter;
 
-// Example data for the ringdown graph
-// (Replace these with actual x and y coordinate arrays and adjust mapping ranges)
-const int numPoints = 50;
-extern int dataX[numPoints];
-extern int dataY[numPoints];
+// // Example data for the ringdown graph
+// // (Replace these with actual x and y coordinate arrays and adjust mapping ranges)
+// const int numPoints = 50;
+// extern int dataX[numPoints];
+// extern int dataY[numPoints];
 
-// Define mapping ranges for data (adjust these based on actual data's min/max)
-// TODO: Need to declare as extern when having actual data
-const int xMin = 0, xMax = 100;
-const int yMin = 0, yMax = 120;
+// // Define mapping ranges for data (adjust these based on actual data's min/max)
+// // TODO: Need to declare as extern when having actual data
+// const int xMin = 0, xMax = 100;
+// const int yMin = 0, yMax = 120;
 
 typedef struct {
     uint32_t xMin, xMax; // Frequency
