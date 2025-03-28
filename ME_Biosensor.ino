@@ -14,6 +14,7 @@ void setup() {
   digitalWrite(LED_BUILTIN, LED_BUILTIN_INACTIVE);
 
   Serial.begin(115200);
+  // Serial1.begin(115200);
   Serial.println("ME Biosensor BGM220P running");
   Serial.println("RA8875 start");
 

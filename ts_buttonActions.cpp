@@ -64,6 +64,8 @@ void startMainButton() {
 
   // TODO: Send UART communication to STM to start ringdown and receive data back
 
+  // Increment numPoints based on incoming data
+
   // Draw the ringdown graph using the provided data
   drawRingdownGraph();
 }

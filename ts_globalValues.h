@@ -1,5 +1,6 @@
 #include "Adafruit_RA8875.h"
 #include <string>
+#include "ble_globalValues.h"
 
 #ifndef GLOBAL_VALUES
 #define GLOBAL_VALUES
@@ -59,13 +60,13 @@ extern uint32_t parametersRingdown[5];
 typedef struct {
     uint32_t minValue; // min and max value need to be given in relation to the smallest unit
     uint32_t maxValue; // Example: 10 MHz needs to stored as 10000000 in maxValue
-    std::string minValueText;
-    std::string maxValueText;
+    const char* minValueText;
+    const char* maxValueText;
 } rangeOfParameter;
 
-const rangeOfParameter parameterRanges[5] = {{.minValue = 1000, .maxValue = 10000000, .minValueText = "1 KHz", .maxValueText = "10 MHz"},
-                                    {.minValue = 1000, .maxValue = 10000000, .minValueText = "1 KHz", .maxValueText = "10 MHz"},
-                                    {.minValue = 100, .maxValue = 100000, .minValueText = "100 Hz", .maxValueText = "100 KHz"},
+constexpr rangeOfParameter parameterRanges[5] = {{.minValue = 1000, .maxValue = 10000000, .minValueText = "1 kHz", .maxValueText = "10 MHz"},
+                                    {.minValue = 1000, .maxValue = 10000000, .minValueText = "1 kHz", .maxValueText = "10 MHz"},
+                                    {.minValue = 100, .maxValue = 100000, .minValueText = "100 Hz", .maxValueText = "100 kHz"},
                                     {.minValue = 0, .maxValue = 1000, .minValueText = "0 ms", .maxValueText = "1000 ms"},
                                     {.minValue = 1, .maxValue = 10, .minValueText = "1", .maxValueText = "10"}};
 
@@ -105,5 +106,16 @@ extern int dataY[numPoints];
 // TODO: Need to declare as extern when having actual data
 const int xMin = 0, xMax = 100;
 const int yMin = 0, yMax = 120;
+
+typedef struct {
+    uint32_t xMin, xMax; // Frequency
+    uint8_t yMin, yMax; // Duration
+} XYMinMax;
+
+// Data for ringdown graph
+constexpr int maxNumPoints = ((parameterRanges[1].maxValue - parameterRanges[0].minValue)/parameterRanges[2].minValue) + 1; // 99,991
+extern int numPoints;
+extern ringdownData _ringdownData[2];
+extern XYMinMax _xyMinMax;
 
 #endif
