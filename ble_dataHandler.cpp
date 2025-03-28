@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include "ble_globalValues.h"
+#include "ts_globalValues.h"
 
 void btn_state_change_callback() {
     // If the board has a built-in button
@@ -21,11 +22,12 @@ void handle_data_indication() {
   
     clientReadyForNextIndication = false;
   
-    ringdownData newData = { .duration = indicationIndex + 1, .frequency = 400000 + (100 * indicationIndex) };
+    // ringdownData newData = { .duration = indicationIndex + 1, .frequency = 400000 + (100 * indicationIndex) };
+    ringdownData newData = _ringdownData[indicationIndex];
     // memcpy(txBuffer, &newData, sizeof(ringdownData));
   
     // Send the indication
-    sl_bt_gatt_server_send_indication(connection_handle, data_characteristic_handle, sizeof(newData), (uint8_t *)&newData);
+    sl_bt_gatt_server_send_indication(connection_handle, ringdownData_characteristic_handle, sizeof(newData), (uint8_t *)&newData);
   
     // Wait for a second
     // delay(1000);

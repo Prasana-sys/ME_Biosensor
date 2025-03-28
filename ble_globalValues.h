@@ -9,7 +9,8 @@ extern volatile uint8_t btn_state;
 
 const uint8_t advertised_name[] = "ME Biosensor";
 extern uint8_t connection_handle;
-extern uint16_t data_characteristic_handle;
+extern uint16_t ringdownData_characteristic_handle;
+extern uint16_t ringdownParameters_characteristic_handle;
 
 extern bool clientReadyForNextIndication;
 extern uint32_t indicationIndex;  // Number of steps

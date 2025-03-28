@@ -1,5 +1,6 @@
 #include "ble_initialization.h"
 #include "ble_globalValues.h"
+#include "ts_globalValues.h"
 
 /**************************************************************************/ /**
  * Initializes the GATT database
@@ -55,8 +56,8 @@ void ble_initialize_gatt_db() {
                                   &ME_sensor_service_handle);
     app_assert_status(sc);
   
-    // Data characteristic
-    const uuid_128 data_characteristic_uuid = { .data = { 0x7a, 0x08, 0x6a, 0x73, 0x6c, 0xbe, 0xd8, 0x46, 0x97, 0xc2, 0x88, 0x40, 0x10, 0x65, 0x02, 0x5b } };
+    // ringdownData characteristic
+    const uuid_128 ringdownData_characteristic_uuid = { .data = { 0x7a, 0x08, 0x6a, 0x73, 0x6c, 0xbe, 0xd8, 0x46, 0x97, 0xc2, 0x88, 0x40, 0x10, 0x65, 0x02, 0x5b } };
     // uint8_t data_initial_value[20] = {0};
   
     const ringdownData ringdownInitialValue = { .duration = 0, .frequency = 0 };
@@ -65,17 +66,35 @@ void ble_initialize_gatt_db() {
   
     sc = sl_bt_gattdb_add_uuid128_characteristic(gattdb_session_id,
                                                  ME_sensor_service_handle,
-                                                 SL_BT_GATTDB_CHARACTERISTIC_INDICATE,
+                                                 SL_BT_GATTDB_CHARACTERISTIC_READ | SL_BT_GATTDB_CHARACTERISTIC_INDICATE,
                                                  0x00,
                                                  0x00,
-                                                 data_characteristic_uuid,
+                                                 ringdownData_characteristic_uuid,
                                                  sl_bt_gattdb_fixed_length_value,
                                                  5,
                                                  sizeof(ringdownInitialValue),
                                                  (uint8_t *)&ringdownInitialValue,
-                                                 &data_characteristic_handle);
+                                                 &ringdownData_characteristic_handle);
     app_assert_status(sc);
+
+    // ringdownParameters characteristic cc143c32-089e-4204-b5a3-e9567c905b84
+    const uuid_128 ringdownParameters_characteristic_uuid = { .data = { 0x84, 0x5b, 0x90, 0x7c, 0x56, 0xe9, 0xa3, 0xb5, 0x04, 0x42, 0x9e, 0x08, 0x32, 0x3c, 0x14, 0xcc } };
   
+    // ringdownParameters defined in ts_globalValues.h
+
+    sc = sl_bt_gattdb_add_uuid128_characteristic(gattdb_session_id,
+                                                 ME_sensor_service_handle,
+                                                 SL_BT_GATTDB_CHARACTERISTIC_READ | SL_BT_GATTDB_CHARACTERISTIC_WRITE | SL_BT_GATTDB_CHARACTERISTIC_INDICATE,
+                                                 0x00,
+                                                 0x00,
+                                                 ringdownParameters_characteristic_uuid,
+                                                 sl_bt_gattdb_fixed_length_value,
+                                                 20,
+                                                 sizeof(parametersRingdown),
+                                                 (uint8_t *)&parametersRingdown,
+                                                 &ringdownParameters_characteristic_handle);
+    app_assert_status(sc);
+
     // Start the ME sensor service
     sc = sl_bt_gattdb_start_service(gattdb_session_id, ME_sensor_service_handle);
     app_assert_status(sc);

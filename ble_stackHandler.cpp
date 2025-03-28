@@ -3,6 +3,7 @@
 #include "ble_globalValues.h"
 #include "ble_initialization.h"
 #include "ble_dataHandler.h"
+#include "ts_globalValues.h"
 
 /**************************************************************************/ /**
  * Bluetooth stack event handler
@@ -52,7 +53,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt) {
       // This event is received when a GATT characteristic status changes
       case sl_bt_evt_gatt_server_characteristic_status_id:
         // If the 'Data' characteristic has been changed
-        if (evt->data.evt_gatt_server_characteristic_status.characteristic == data_characteristic_handle) {
+        if (evt->data.evt_gatt_server_characteristic_status.characteristic == ringdownData_characteristic_handle) {
           uint16_t client_config_flags = evt->data.evt_gatt_server_characteristic_status.client_config_flags;
           uint8_t status_flags = evt->data.evt_gatt_server_characteristic_status.status_flags;
           if ((client_config_flags == 0x02) && (status_flags == 0x01)) {
@@ -67,7 +68,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt) {
             Serial.println("Ack received");
             clientReadyForNextIndication = true;
             indicationIndex++;
-            if (indicationIndex < 10) {
+            if (indicationIndex < numPoints) {
               handle_data_indication();
             } else {
               Serial.println("Indications sent!");
