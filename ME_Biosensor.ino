@@ -106,6 +106,12 @@ void loop() {
     ble_ringdown_parameters_changed = false;
     drawMainScreen();
 
+    sl_bt_gatt_server_write_attribute_value(ringdownParameters_characteristic_handle,
+                                            0,
+                                            sizeof(parametersRingdown), 
+                                            (uint8_t *)&parametersRingdown);
+
+    // Send indication back if paramaters were invalid and they were updated
     if (ringdownParameters_indication_enabled) {
       sl_bt_gatt_server_send_indication(connection_handle, 
                                         ringdownParameters_characteristic_handle, 
@@ -114,14 +120,20 @@ void loop() {
     }
   }
 
-  if (ts_ringdown_parameters_changed && ringdownParameters_indication_enabled) {
+  if (ts_ringdown_parameters_changed) {
     // Parameters changed from touch screen
     // Send indication to client to reflect new values
-    // If indications are not enabled, updates from screen wont be sent and cannot be read later
     ts_ringdown_parameters_changed = false;
-    sl_bt_gatt_server_send_indication(connection_handle, 
-                                      ringdownParameters_characteristic_handle, 
-                                      sizeof(parametersRingdown), 
-                                      (uint8_t *)&parametersRingdown);
+    sl_bt_gatt_server_write_attribute_value(ringdownParameters_characteristic_handle,
+                                            0,
+                                            sizeof(parametersRingdown), 
+                                            (uint8_t *)&parametersRingdown);
+
+    if (ringdownParameters_indication_enabled) {
+      sl_bt_gatt_server_send_indication(connection_handle, 
+                                        ringdownParameters_characteristic_handle, 
+                                        sizeof(parametersRingdown), 
+                                        (uint8_t *)&parametersRingdown);
+    }
   }
 }
