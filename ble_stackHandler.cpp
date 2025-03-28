@@ -41,7 +41,8 @@ void sl_bt_on_event(sl_bt_msg_t *evt) {
       // This event indicates that a connection was closed
       case sl_bt_evt_connection_closed_id:
         connection_handle = 0u;
-        indication_enabled = false;
+        ringdownData_indication_enabled = false;
+        ringdownParameters_indication_enabled = false;
         Serial.println("BLE connection closed");
         // delete[] txBuffer;
         // Restart the advertisement
@@ -62,11 +63,11 @@ void sl_bt_on_event(sl_bt_msg_t *evt) {
           if ((client_config_flags == 0x02) && (status_flags == 0x01)) {
             // If indication was enabled (0x02) in the client config flags, and the status flag shows that it's a change
             Serial.println("ringdownData indication enabled");
-            indication_enabled = true;
+            ringdownData_indication_enabled = true;
           } else if ((client_config_flags == 0x00) && (status_flags == 0x01)) {
             // If indication was disabled (0x00) in the client config flags, and the status flag shows that it's a change
             Serial.println("ringdownData indication disabled");
-            indication_enabled = false;
+            ringdownData_indication_enabled = false;
           } else if (status_flags == 0x02) {  // Wait for client to ack indication received then send next indication
             Serial.println("Ack received");
             clientReadyForNextIndication = true;
@@ -89,11 +90,11 @@ void sl_bt_on_event(sl_bt_msg_t *evt) {
           if ((client_config_flags == 0x02) && (status_flags == 0x01)) {
             // If indication was enabled (0x02) in the client config flags, and the status flag shows that it's a change
             Serial.println("ringdownParameters indication enabled");
-            indication_enabled = true;
+            ringdownParameters_indication_enabled = true;
           } else if ((client_config_flags == 0x00) && (status_flags == 0x01)) {
             // If indication was disabled (0x00) in the client config flags, and the status flag shows that it's a change
             Serial.println("ringdownParameters indication disabled");
-            indication_enabled = false;
+            ringdownParameters_indication_enabled = false;
           }
         }
         break;
@@ -127,7 +128,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt) {
             }
         
             // Redraw screen with new variables
-            ringdown_parameters_changed = true;
+            ble_ringdown_parameters_changed = true;
         }
         break;
       // -------------------------------

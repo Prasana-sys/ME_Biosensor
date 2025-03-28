@@ -56,6 +56,7 @@ extern const char* buttonLabels[8];
 // 3 = Forced Response duration (ms)
 // 4 = Number of sweeps
 extern uint32_t parametersRingdown[5];
+extern bool ts_ringdown_parameters_changed;
 
 typedef struct {
     uint32_t minValue; // min and max value need to be given in relation to the smallest unit

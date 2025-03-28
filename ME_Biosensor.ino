@@ -100,8 +100,21 @@ void loop() {
     handle_data_indication();
   }
 
-  if (ringdown_parameters_changed) {
-    ringdown_parameters_changed = false;
+  if (ble_ringdown_parameters_changed) {
+    // Parameters changed from BLE write
+    // Update screen to reflect new values
+    ble_ringdown_parameters_changed = false;
     drawMainScreen();
+  }
+
+  if (ts_ringdown_parameters_changed && ringdownParameters_indication_enabled) {
+    // Parameters changed from touch screen
+    // Send indication to client to reflect new values
+    // If indications are not enabled, updates from screen wont be sent and cannot be read later
+    ts_ringdown_parameters_changed = false;
+    sl_bt_gatt_server_send_indication(connection_handle, 
+                                      ringdownParameters_characteristic_handle, 
+                                      sizeof(parametersRingdown), 
+                                      (uint8_t *)&parametersRingdown);
   }
 }

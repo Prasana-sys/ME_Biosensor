@@ -209,6 +209,7 @@ void numpadOK() {
     // Clear out changing box
     tft.fillRect(310, 200, sParameterButtonW, sParameterButtonH, RA8875_WHITE);
 
+    ts_ringdown_parameters_changed = true;
     isChangingValue = false;
     selectedParameter = changingParameter::None;
     newValue = 0;

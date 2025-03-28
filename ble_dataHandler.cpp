@@ -16,7 +16,7 @@ void btn_state_change_callback() {
   
 void handle_data_indication() {
     // Return immediately if indications are not enabled or client not ready for next indication
-    if (!indication_enabled || !clientReadyForNextIndication) {
+    if (!ringdownData_indication_enabled || !clientReadyForNextIndication) {
       return;
     }
   

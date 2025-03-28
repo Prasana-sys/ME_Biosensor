@@ -1,6 +1,7 @@
 #include "ble_globalValues.h"
 
-bool indication_enabled = false;
+bool ringdownData_indication_enabled = false;
+bool ringdownParameters_indication_enabled = false;
 volatile bool btn_state_changed = false;
 volatile uint8_t btn_state = LOW;
 
@@ -11,4 +12,4 @@ uint16_t ringdownParameters_characteristic_handle = 1u;
 bool clientReadyForNextIndication = false;
 uint32_t indicationIndex = 0;
 
-bool ringdown_parameters_changed = false;
+bool ble_ringdown_parameters_changed = false;
