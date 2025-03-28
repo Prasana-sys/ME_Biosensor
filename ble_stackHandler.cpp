@@ -111,15 +111,9 @@ void sl_bt_on_event(sl_bt_msg_t *evt) {
             {
                 // Update local parametersRingdown array with the new data (little-endian format)
                 memcpy(parametersRingdown, evt->data.evt_gatt_server_attribute_value.value.data, sizeof(parametersRingdown));
-        
-                // Serial.println("Updated parametersRingdown from user write request:");
-                // for (uint8_t i = 0; i < 5; i++)
-                // {
-                //     Serial.print("parametersRingdown[");
-                //     Serial.print(i);
-                //     Serial.print("] = ");
-                //     Serial.println(parametersRingdown[i]);
-                // }
+
+                // Check if all parameters sent are in valid range and update if required
+                check_parameters_validity();
             }
             else
             {

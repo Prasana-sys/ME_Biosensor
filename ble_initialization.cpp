@@ -66,7 +66,7 @@ void ble_initialize_gatt_db() {
   
     sc = sl_bt_gattdb_add_uuid128_characteristic(gattdb_session_id,
                                                  ME_sensor_service_handle,
-                                                 SL_BT_GATTDB_CHARACTERISTIC_READ | SL_BT_GATTDB_CHARACTERISTIC_INDICATE,
+                                                 SL_BT_GATTDB_CHARACTERISTIC_INDICATE,
                                                  0x00,
                                                  0x00,
                                                  ringdownData_characteristic_uuid,

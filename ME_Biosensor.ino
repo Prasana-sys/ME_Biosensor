@@ -105,6 +105,13 @@ void loop() {
     // Update screen to reflect new values
     ble_ringdown_parameters_changed = false;
     drawMainScreen();
+
+    if (ringdownParameters_indication_enabled) {
+      sl_bt_gatt_server_send_indication(connection_handle, 
+                                        ringdownParameters_characteristic_handle, 
+                                        sizeof(parametersRingdown), 
+                                        (uint8_t *)&parametersRingdown);
+    }
   }
 
   if (ts_ringdown_parameters_changed && ringdownParameters_indication_enabled) {

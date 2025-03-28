@@ -4,5 +4,6 @@
 
 void btn_state_change_callback();
 void handle_data_indication();
+void check_parameters_validity();
 
 #endif

@@ -66,6 +66,8 @@ void startMainButton() {
 
   // Increment numPoints based on incoming data
 
+  // Store on SD card
+
   // Draw the ringdown graph using the provided data
   drawRingdownGraph();
 }

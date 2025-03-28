@@ -32,3 +32,15 @@ void handle_data_indication() {
     // Wait for a second
     // delay(1000);
 }
+
+void check_parameters_validity() {
+
+  for (uint8_t i = 0; i < 5; i++){
+    if (parametersRingdown[i] < parameterRanges[i].minValue) {
+      parametersRingdown[i] = parameterRanges[i].minValue;
+    }
+    else if (parametersRingdown[i] > parameterRanges[i].maxValue) {
+      parametersRingdown[i] = parameterRanges[i].maxValue;
+    }
+  }
+}
