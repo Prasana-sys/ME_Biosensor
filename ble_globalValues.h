@@ -15,6 +15,8 @@ extern uint16_t ringdownParameters_characteristic_handle;
 extern bool clientReadyForNextIndication;
 extern uint32_t indicationIndex;  // Number of steps
 
+extern bool ringdown_parameters_changed;
+
 #pragma pack(push, 1)  // To condense the struct / remove extra byte padding
 typedef struct {
   uint8_t duration;

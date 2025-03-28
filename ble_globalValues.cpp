@@ -10,3 +10,5 @@ uint16_t ringdownParameters_characteristic_handle = 1u;
 
 bool clientReadyForNextIndication = false;
 uint32_t indicationIndex = 0;
+
+bool ringdown_parameters_changed = false;

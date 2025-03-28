@@ -99,4 +99,9 @@ void loop() {
     clientReadyForNextIndication = true;
     handle_data_indication();
   }
+
+  if (ringdown_parameters_changed) {
+    ringdown_parameters_changed = false;
+    drawMainScreen();
+  }
 }

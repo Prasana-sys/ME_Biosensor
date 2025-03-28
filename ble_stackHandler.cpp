@@ -52,17 +52,20 @@ void sl_bt_on_event(sl_bt_msg_t *evt) {
       // -------------------------------
       // This event is received when a GATT characteristic status changes
       case sl_bt_evt_gatt_server_characteristic_status_id:
-        // If the 'Data' characteristic has been changed
+        // If the 'ringdownData' characteristic has been changed
         if (evt->data.evt_gatt_server_characteristic_status.characteristic == ringdownData_characteristic_handle) {
+
           uint16_t client_config_flags = evt->data.evt_gatt_server_characteristic_status.client_config_flags;
+
           uint8_t status_flags = evt->data.evt_gatt_server_characteristic_status.status_flags;
+
           if ((client_config_flags == 0x02) && (status_flags == 0x01)) {
             // If indication was enabled (0x02) in the client config flags, and the status flag shows that it's a change
-            Serial.println("Data indication enabled");
+            Serial.println("ringdownData indication enabled");
             indication_enabled = true;
           } else if ((client_config_flags == 0x00) && (status_flags == 0x01)) {
             // If indication was disabled (0x00) in the client config flags, and the status flag shows that it's a change
-            Serial.println("Data indication disabled");
+            Serial.println("ringdownData indication disabled");
             indication_enabled = false;
           } else if (status_flags == 0x02) {  // Wait for client to ack indication received then send next indication
             Serial.println("Ack received");
@@ -76,8 +79,57 @@ void sl_bt_on_event(sl_bt_msg_t *evt) {
             }
           }
         }
+        // If the 'ringdownParameters' characteristic configuration has been changed
+        else if (evt->data.evt_gatt_server_characteristic_status.characteristic == ringdownParameters_characteristic_handle) {
+
+          uint16_t client_config_flags = evt->data.evt_gatt_server_characteristic_status.client_config_flags;
+
+          uint8_t status_flags = evt->data.evt_gatt_server_characteristic_status.status_flags;
+
+          if ((client_config_flags == 0x02) && (status_flags == 0x01)) {
+            // If indication was enabled (0x02) in the client config flags, and the status flag shows that it's a change
+            Serial.println("ringdownParameters indication enabled");
+            indication_enabled = true;
+          } else if ((client_config_flags == 0x00) && (status_flags == 0x01)) {
+            // If indication was disabled (0x00) in the client config flags, and the status flag shows that it's a change
+            Serial.println("ringdownParameters indication disabled");
+            indication_enabled = false;
+          }
+        }
         break;
-  
+
+      // This event indicates that the value of an attribute in the local GATT
+      // database was changed by a remote GATT client
+      case sl_bt_evt_gatt_server_attribute_value_id:
+        // Check if the changed characteristic is the ringdownParameters characteristic
+        if (evt->data.evt_gatt_server_attribute_value.attribute == ringdownParameters_characteristic_handle)
+        {   
+            uint16_t len = evt->data.evt_gatt_server_attribute_value.value.len;
+            // Make sure the written data has the expected length (20 bytes for 5 x uint32_t)
+            if (len == sizeof(parametersRingdown))
+            {
+                // Update local parametersRingdown array with the new data (little-endian format)
+                memcpy(parametersRingdown, evt->data.evt_gatt_server_attribute_value.value.data, sizeof(parametersRingdown));
+        
+                // Serial.println("Updated parametersRingdown from user write request:");
+                // for (uint8_t i = 0; i < 5; i++)
+                // {
+                //     Serial.print("parametersRingdown[");
+                //     Serial.print(i);
+                //     Serial.print("] = ");
+                //     Serial.println(parametersRingdown[i]);
+                // }
+            }
+            else
+            {
+                Serial.print("Error: unexpected write data length: ");
+                Serial.println(len);
+            }
+        
+            // Redraw screen with new variables
+            ringdown_parameters_changed = true;
+        }
+        break;
       // -------------------------------
       // Default event handler
       default:
