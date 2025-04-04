@@ -96,8 +96,10 @@ void loop() {
 
   if (btn_state_changed) {
     btn_state_changed = false;
-    clientReadyForNextIndication = true;
-    handle_data_indication();
+    if (numPoints != 0){
+      clientReadyForNextIndication = true;
+      handle_data_indication();
+    }
   }
 
   if (ble_ringdown_parameters_changed) {

@@ -1,5 +1,6 @@
 #include "ts_globalValues.h"
 #include <string>
+#include <EEPROM.h>
 #include "ts_textCentering_Helper_Functions.h"
 #include "ts_mainScreen_Helper_Functions.h"
 
@@ -82,15 +83,21 @@ void getXYMinMax(){
         Serial.println("Error: No points obtained from STM32");
     }
 
-    // Initialize min/max using the first data point.
-    _xyMinMax.xMin = _ringdownData[0].frequency;
-    _xyMinMax.xMax = _ringdownData[0].frequency;
-    _xyMinMax.yMin = _ringdownData[0].duration;
-    _xyMinMax.yMax = _ringdownData[0].duration;
+    ringdownData ringdownDataBuffer;
 
-    for (int i = 1; i < numPoints; i++) {
-        uint32_t freq = _ringdownData[i].frequency;
-        uint8_t  dur  = _ringdownData[i].duration;
+    EEPROM.get(0, ringdownDataBuffer);
+
+    // Initialize min/max using the first data point.
+    _xyMinMax.xMin = ringdownDataBuffer.frequency;
+    _xyMinMax.xMax = ringdownDataBuffer.frequency;
+    _xyMinMax.yMin = ringdownDataBuffer.duration;
+    _xyMinMax.yMax = ringdownDataBuffer.duration;
+
+    for (int eeAddress = sizeof(ringdownData); eeAddress < numPoints * sizeof(ringdownData); eeAddress += sizeof(ringdownData)) {
+        EEPROM.get(eeAddress, ringdownDataBuffer);
+
+        uint32_t freq = ringdownDataBuffer.frequency;
+        uint8_t  dur  = ringdownDataBuffer.duration;
         
         if (freq < _xyMinMax.xMin) {
             _xyMinMax.xMin = freq;
@@ -109,34 +116,24 @@ void getXYMinMax(){
 
 void drawRingdownGraph()
 {
-
-    // // Draw the graph by mapping the data points to the graph area
-    // for (int i = 0; i < numPoints - 1; i++)
-    // {
-    //     // Map x values to the graph width
-    //     int x1 = graphX + map(dataX[i], xMin, xMax, 0, graphW);
-    //     int x2 = graphX + map(dataX[i + 1], xMin, xMax, 0, graphW);
-
-    //     // Map y values (invert y-axis because screen y increases downward)
-    //     int y1 = graphY + graphH - map(dataY[i], yMin, yMax, 0, graphH);
-    //     int y2 = graphY + graphH - map(dataY[i + 1], yMin, yMax, 0, graphH);
-
-    //     // Draw line segments connecting the data points
-    //     tft.drawLine(x1, y1, x2, y2, RA8875_BLACK);
-    // }
-
     getXYMinMax();
+    ringdownData ringdownDataBuffer, ringdownDataBuffer_1;
+
+    Serial.println("Drawing Graph");
 
     // Draw the graph by mapping the data points to the graph area
-    for (int i = 0; i < numPoints - 1; i++) {
+    for (int eeAddress = 0; eeAddress < (numPoints * sizeof(ringdownData)) - sizeof(ringdownData); eeAddress += sizeof(ringdownData)) {
+
+        EEPROM.get(eeAddress, ringdownDataBuffer);
+        EEPROM.get(eeAddress + sizeof(ringdownData), ringdownDataBuffer_1);
 
         // Map x values to the graph width
-        int x1 = graphX + map(_ringdownData[i].frequency, _xyMinMax.xMin, _xyMinMax.xMax, 0, graphW);
-        int x2 = graphX + map(_ringdownData[i + 1].frequency, _xyMinMax.xMin, _xyMinMax.xMax, 0, graphW);
+        int x1 = graphX + map(ringdownDataBuffer.frequency, _xyMinMax.xMin, _xyMinMax.xMax, 0, graphW);
+        int x2 = graphX + map(ringdownDataBuffer_1.frequency, _xyMinMax.xMin, _xyMinMax.xMax, 0, graphW);
 
         // Map y values (invert y-axis because screen y increases downward)
-        int y1 = graphY + graphH - map(_ringdownData[i].duration, _xyMinMax.yMin, _xyMinMax.yMax, 0, graphH);
-        int y2 = graphY + graphH - map(_ringdownData[i + 1].duration, _xyMinMax.yMin, _xyMinMax.yMax, 0, graphH);
+        int y1 = graphY + graphH - map(ringdownDataBuffer.duration, _xyMinMax.yMin, _xyMinMax.yMax, 0, graphH);
+        int y2 = graphY + graphH - map(ringdownDataBuffer_1.duration, _xyMinMax.yMin, _xyMinMax.yMax, 0, graphH);
 
         // Draw line segments connecting the data points
         tft.drawLine(x1, y1, x2, y2, RA8875_BLACK);

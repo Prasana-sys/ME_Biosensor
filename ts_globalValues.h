@@ -113,7 +113,6 @@ typedef struct {
 // Data for ringdown graph
 constexpr int maxNumPoints = ((parameterRanges[1].maxValue - parameterRanges[0].minValue)/parameterRanges[2].minValue) + 1; // 99,991
 extern int numPoints;
-extern ringdownData _ringdownData[456];
 extern XYMinMax _xyMinMax;
 
 #endif

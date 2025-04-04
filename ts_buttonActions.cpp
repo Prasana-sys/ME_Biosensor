@@ -1,5 +1,7 @@
 #include "ts_buttonActions.h"
+
 #include <WatchdogTimer.h>
+#include <EEPROM.h>
 #include "ts_settingsScreen_Helper_Functions.h"
 #include "ts_mainScreen_Helper_Functions.h"
 
@@ -62,14 +64,34 @@ void resetMainButton() {
 void startMainButton() {
   Serial.println("Start button pressed");
 
-  // TODO: Send UART communication to STM to start ringdown and receive data back
+  int eeAddress = 0; //EEPROM address to start writing from
+  ringdownData ringdownDataBuffer;
 
+  // TODO: Send UART communication to STM to start ringdown and receive data back
+  // Store UART packets in EEPROM
   // Increment numPoints based on incoming data
 
-  // Store on SD card
+  // const uint8_t* parameterPacket = 
+  // Serial1.write(parameterPacket, sizeof(parameterPacket));
+
+  // Imitating receiving data
+  // for (int i = 0; i < 10; i++){
+
+  //   ringdownDataBuffer = {100+i, 412500 + (i * 50)};
+
+  //   EEPROM.put(eeAddress, ringdownDataBuffer);
+
+  //   eeAddress += sizeof(ringdownData);
+  //   numPoints++;
+  // }
+  
+  // For testing only:
+  numPoints = 10;
 
   // Draw the ringdown graph using the provided data
   drawRingdownGraph();
+
+  Serial.println("Leaving Start button logic");
 }
 
 void startFreqSettingsButton() {
