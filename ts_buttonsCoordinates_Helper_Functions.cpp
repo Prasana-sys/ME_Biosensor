@@ -19,6 +19,7 @@ const Button mainButtons[8] = {
     {pButtonX[4], buttonY, pButtonW[4], buttonH, sweepsMainButton},
     // Terminate
     {cButtonX[0], buttonY, cButtonW, buttonH, terminateMainButton},
+    // {cButtonX[0], buttonY, cButtonW, buttonH, doNothing},
     // Reset
     {cButtonX[1], buttonY, cButtonW, buttonH, resetMainButton},
     // Start

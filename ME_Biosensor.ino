@@ -14,7 +14,7 @@ void setup() {
   digitalWrite(LED_BUILTIN, LED_BUILTIN_INACTIVE);
 
   Serial.begin(115200);
-  // Serial1.begin(115200);
+  Serial1.begin(115200);
   Serial.println("ME Biosensor BGM220P running");
   Serial.println("RA8875 start");
 
@@ -44,6 +44,12 @@ void setup() {
 
   // Draw the initial GUI elements
   drawMainScreen();
+
+  // Reset STM interrupt line to bring to known state (waiting indefinitely for parameter UART packet)
+  pinMode(STM_RES, OUTPUT);
+  digitalWrite(STM_RES, LOW);
+  delay(100);
+  digitalWrite(STM_RES, HIGH);
 }
 
 void loop() {

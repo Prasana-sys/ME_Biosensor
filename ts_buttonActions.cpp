@@ -54,6 +54,9 @@ void terminateMainButton() {
   Serial.println("Terminating ringdown process");
 
   // TODO: Need to handle termination
+  digitalWrite(STM_RES, LOW);
+  delay(100);
+  digitalWrite(STM_RES, HIGH);
 }
 
 void resetMainButton() {
@@ -61,32 +64,138 @@ void resetMainButton() {
   WatchdogTimer.begin(WDOG_PERIOD_1_S);
 }
 
+void sendParametersPacket() {
+  Serial.println("Sending Parameters");
+
+  #pragma pack(push, 1)  // To condense the struct / remove extra byte padding
+  typedef struct {
+    uint8_t StartOfFrame;
+    uint32_t startFrequency;
+    uint32_t stopFrequency;
+    uint32_t stepSize;
+    uint32_t frDuration;
+    uint32_t sweeps;
+    uint8_t EndOfFrame;
+    uint8_t checksum;
+  } parameterPacket;
+  #pragma pack(pop)
+
+  uint8_t checksum = (uint8_t)((parametersRingdown[0]+parametersRingdown[1]+parametersRingdown[2]+parametersRingdown[3]+parametersRingdown[4]) & 0xFF);
+
+  parameterPacket packet = {0xA5, parametersRingdown[0], parametersRingdown[1], parametersRingdown[2],
+                            parametersRingdown[3], parametersRingdown[4], 0x5A, checksum};
+
+  Serial.print("Sending: ");
+  Serial.write((byte *)&packet, sizeof(packet));
+  Serial.println();
+  Serial1.flush();
+  Serial1.write((uint8_t *)&packet, sizeof(packet));
+}
+
+void receiveDataPackets() {
+
+  uint8_t index = 0;
+  int eeAddress = 0; //EEPROM address to start writing from
+  int expectedNumberOfPoints= ((parametersRingdown[1] - parametersRingdown[0])/parametersRingdown[2]) + 1;
+
+  #pragma pack(push, 1)  // To condense the struct / remove extra byte padding
+  typedef struct {
+    uint8_t StartOfFrame;
+    uint8_t duration;
+    uint32_t frequency;
+    uint8_t EndOfFrame;
+    uint8_t checksum;
+  } ringdownPacket;
+  #pragma pack(pop)
+
+  uint8_t buffer[sizeof(ringdownPacket)];
+
+  while (numPoints < expectedNumberOfPoints) {
+    // Serial.println("Inside while loop");
+    if (Serial1.available()){
+      // Serial.println("Serial1 available");
+      uint8_t inByte = (uint8_t)Serial1.read();
+      Serial.print("Incoming: ");
+      Serial.println(inByte, HEX);
+      // If we haven't started buffering yet, look for the start-of-frame marker.
+      if (index == 0) {
+        if (inByte == 0xAA) {
+          buffer[index++] = inByte;
+        }
+      }
+      else {
+        buffer[index++] = inByte;
+
+        // Once we have received the full packet, process it.
+        if (index == sizeof(ringdownPacket)) {
+          // Cast buffer to our packet structure for easier access.
+          ringdownPacket *packet = (ringdownPacket *)buffer;
+          Serial.print("Start Frame: ");
+          Serial.println(packet->StartOfFrame, HEX);
+          Serial.print("End Frame: ");
+          Serial.println(packet->EndOfFrame, HEX);
+          Serial.print("Duration: ");
+          Serial.println(packet->duration, HEX);
+          Serial.print("Frequency: ");
+          Serial.println(packet->frequency, HEX);
+          Serial.print("Checksum: ");
+          Serial.println(packet->checksum, HEX);
+
+          // Validate end-of-frame marker.
+          if (packet->EndOfFrame == 0xAA) {
+            // Calculate checksum over all bytes except the checksum field.
+            uint8_t calcChecksum = 0;
+            for (int i = 0; i < sizeof(ringdownPacket) - 1; i++) {
+              calcChecksum += buffer[i];
+            }
+
+            // if (calcChecksum == packet->checksum) {
+              // Valid packet received; process the data.
+              
+              ringdownData dataBuffer = {packet->duration, packet->frequency};
+              Serial.print("Writing packet: ");
+              Serial.print(dataBuffer.duration);
+              Serial.print(", ");
+              Serial.println(dataBuffer.frequency);
+              EEPROM.put(eeAddress, dataBuffer);
+
+              eeAddress += sizeof(ringdownData);
+              numPoints++;
+              Serial1.flush();
+            // }
+            // else {
+              // Serial.println("Checksum error");
+            // }
+          }
+          else {
+            Serial.println("End-of-frame marker error");
+          }
+
+          index = 0;
+        }
+      }
+    }
+    else {
+      // Serial.println("Serial1 not available");
+    }
+  }
+}
+
 void startMainButton() {
   Serial.println("Start button pressed");
 
-  int eeAddress = 0; //EEPROM address to start writing from
-  ringdownData ringdownDataBuffer;
-
-  // TODO: Send UART communication to STM to start ringdown and receive data back
+  // Send UART communication to STM to start ringdown and receive data back
   // Store UART packets in EEPROM
   // Increment numPoints based on incoming data
 
-  // const uint8_t* parameterPacket = 
-  // Serial1.write(parameterPacket, sizeof(parameterPacket));
+  sendParametersPacket();
 
-  // Imitating receiving data
-  // for (int i = 0; i < 10; i++){
+  Serial.println("Beginning to wait for packets");
 
-  //   ringdownDataBuffer = {100+i, 412500 + (i * 50)};
+  receiveDataPackets();
 
-  //   EEPROM.put(eeAddress, ringdownDataBuffer);
-
-  //   eeAddress += sizeof(ringdownData);
-  //   numPoints++;
-  // }
-  
-  // For testing only:
-  numPoints = 10;
+  // // For testing Only
+  // numPoints = 10;
 
   // Draw the ringdown graph using the provided data
   drawRingdownGraph();

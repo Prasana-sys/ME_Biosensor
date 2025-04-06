@@ -6,9 +6,13 @@
 #define GLOBAL_VALUES
 
 // RA8875 Library only supports hardware SPI at this time
-#define RA8875_INT 10
+#define RA8875_INT 13
 #define RA8875_CS 4
 #define RA8875_RESET 9 // Connected to SDA pin currently
+
+#define STM_RES 10 // SCL
+
+// 11 - Tx, 12- Rx
 
 extern Adafruit_RA8875 tft;
 extern uint16_t tx, ty;
@@ -111,7 +115,7 @@ typedef struct {
 } XYMinMax;
 
 // Data for ringdown graph
-constexpr int maxNumPoints = ((parameterRanges[1].maxValue - parameterRanges[0].minValue)/parameterRanges[2].minValue) + 1; // 99,991
+// constexpr int maxNumPoints = ((parameterRanges[1].maxValue - parameterRanges[0].minValue)/parameterRanges[2].minValue) + 1; // 99,991
 extern int numPoints;
 extern XYMinMax _xyMinMax;
 
