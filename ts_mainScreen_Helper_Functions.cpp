@@ -42,7 +42,7 @@ void drawButtons()
 
         if (i == 0)
         {
-            // continue; // Skip drawing terminate box NOT IMPLEMENTED
+            continue; // Skip drawing terminate box NOT IMPLEMENTED
             tft.fillRect(cButtonX[i], buttonY, cButtonW, buttonH, 0xfdb6);
         } // Terminate box red
         else if (i == 1)

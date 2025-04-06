@@ -49,15 +49,15 @@ void sweepsMainButton() {
   changeSweeps(); 
 }
 
-void terminateMainButton() {
-  Serial.println("Terminate main button pressed");
-  Serial.println("Terminating ringdown process");
+// void terminateMainButton() {
+//   Serial.println("Terminate main button pressed");
+//   Serial.println("Terminating ringdown process");
 
-  // TODO: Need to handle termination
-  digitalWrite(STM_RES, LOW);
-  delay(100);
-  digitalWrite(STM_RES, HIGH);
-}
+//   // TODO: Need to handle termination
+//   digitalWrite(STM_RES, LOW);
+//   delay(100);
+//   digitalWrite(STM_RES, HIGH);
+// }
 
 void resetMainButton() {
   Serial.println("Resetting Si Labs MCU and Screen");

@@ -13,7 +13,7 @@ void durationMainButton();
 
 void sweepsMainButton();
 
-void terminateMainButton();
+// void terminateMainButton();
 
 void resetMainButton();
 
