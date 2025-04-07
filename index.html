@@ -50,7 +50,7 @@
     <input type="number" id="stopFreq" name="stopFreq" min="1000" max="10000000" value="1000000"><br>
 
     <label for="stepSize">Step Size (Hz):</label>
-    <input type="number" id="stepSize" name="stepSize" min="100" max="100000" value="10000"><br>
+    <input type="number" id="stepSize" name="stepSize" min="10" max="100000" value="10000"><br>
 
     <label for="duration">Duration (ms):</label>
     <input type="number" id="duration" name="duration" min="0" max="1000" value="100"><br>
@@ -188,9 +188,9 @@
         isValid = false;
         validationMessage.textContent += 'Stop Frequency must be between 1 kHz and 10 MHz.\n';
       }
-      if (isNaN(stepSize) || stepSize < 100 || stepSize > 100000) {
+      if (isNaN(stepSize) || stepSize < 10 || stepSize > 100000) {
         isValid = false;
-        validationMessage.textContent += 'Step Size must be between 100 Hz and 100 kHz.\n';
+        validationMessage.textContent += 'Step Size must be between 10 Hz and 100 kHz.\n';
       }
       if (isNaN(duration) || duration < 0 || duration > 1000) {
         isValid = false;
@@ -208,13 +208,31 @@
 
     // When the Send Parameters button is clicked, the parameters are packaged into a 20-byte buffer 
     // (5 x uint32_t, little-endian) and written to the ringdownParameters characteristic.
-    // Also, the indicationData array is cleared.
+    // This function also checks if the expected number of points exceeds 2000 and, if so,
+    // adjusts the step size accordingly.
     sendBtn.addEventListener('click', async () => {
-      const startFreq = parseInt(document.getElementById('startFreq').value, 10);
-      const stopFreq = parseInt(document.getElementById('stopFreq').value, 10);
-      const stepSize = parseInt(document.getElementById('stepSize').value, 10);
+      let startFreq = parseInt(document.getElementById('startFreq').value, 10);
+      let stopFreq = parseInt(document.getElementById('stopFreq').value, 10);
+      let stepSize = parseInt(document.getElementById('stepSize').value, 10);
       const duration = parseInt(document.getElementById('duration').value, 10);
       const sweeps = parseInt(document.getElementById('sweeps').value, 10);
+
+      const maxNumPoints = 2000;
+      let expectedNumberOfPoints = Math.floor((stopFreq - startFreq) / stepSize) + 1;
+      if (expectedNumberOfPoints > maxNumPoints) {
+        let newStepSize = Math.ceil((stopFreq - startFreq) / (maxNumPoints - 1));
+        const stepSizeMin = parseInt(document.getElementById('stepSize').min, 10);
+        const stepSizeMax = parseInt(document.getElementById('stepSize').max, 10);
+        if (newStepSize < stepSizeMin) {
+          newStepSize = stepSizeMin;
+        } else if (newStepSize > stepSizeMax) {
+          newStepSize = stepSizeMax;
+        }
+        stepSize = newStepSize;
+        document.getElementById('stepSize').value = newStepSize;
+        expectedNumberOfPoints = Math.floor((stopFreq - startFreq) / newStepSize) + 1;
+        output.textContent += `\nAdjusted step size to ${newStepSize} to limit points to ${expectedNumberOfPoints}`;
+      }
 
       const buffer = new ArrayBuffer(20);
       const dataView = new DataView(buffer);
@@ -243,22 +261,12 @@
       const plotType = document.getElementById('plotType').value;
       const dataPoints = indicationData.map(item => ({ x: item.frequency, y: item.duration }));
 
-      const data = {
-        datasets: [{
-          label: 'Ringdown Data',
-          data: dataPoints,
-          borderColor: 'blue',
-          backgroundColor: 'rgba(0, 0, 255, 0.1)',
-          showLine: (plotType === 'line')
-        }]
-      };
-
       const config = {
         type: plotType === 'line' ? 'line' : 'scatter',
         data: {
           datasets: [{
             label: 'Ringdown Data',
-            data: dataPoints, // [{x: frequency, y: duration}, ...]
+            data: dataPoints,
             borderColor: 'blue',
             backgroundColor: 'rgba(0, 0, 255, 0.1)',
             showLine: (plotType === 'line')
@@ -267,11 +275,11 @@
         options: {
           scales: {
             x: {
-              type: 'linear',            // <--- Make sure the x-axis is numeric
+              type: 'linear',
               title: { display: true, text: 'Frequency (Hz)' }
             },
             y: {
-              type: 'linear',            // optional but recommended for clarity
+              type: 'linear',
               title: { display: true, text: 'Duration (ms)' }
             }
           }
