@@ -112,6 +112,7 @@ void loop() {
     // Parameters changed from BLE write
     // Update screen to reflect new values
     ble_ringdown_parameters_changed = false;
+    isSettingsScreen = false;
     drawMainScreen();
 
     sl_bt_gatt_server_write_attribute_value(ringdownParameters_characteristic_handle,

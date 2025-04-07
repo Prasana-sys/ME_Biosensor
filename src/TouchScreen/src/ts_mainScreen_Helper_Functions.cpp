@@ -64,6 +64,7 @@ void drawButtons()
 void drawInfoBox()
 {
     // Draw info rectangle
+    tft.fillRect(infoX, infoY, infoW, infoH, RA8875_WHITE);
     tft.drawRect(infoX, infoY, infoW, infoH, RA8875_BLACK);
 
     // TODO: Need to fill with text

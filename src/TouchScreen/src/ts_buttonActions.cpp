@@ -2,8 +2,10 @@
 
 #include <WatchdogTimer.h>
 #include <EEPROM.h>
+#include <string>
 #include "ts_settingsScreen_Helper_Functions.h"
 #include "ts_mainScreen_Helper_Functions.h"
+#include "ts_textCentering_Helper_Functions.h"
 
 void doNothing () {
 
@@ -113,6 +115,9 @@ void receiveDataPackets() {
   // Begin Watchdog Timer to monitor if getting data packets correctly
   WatchdogTimer.begin(WDOG_PERIOD_4_S);
 
+  drawInfoBox();
+  drawCenteredText(tft, infoX, infoY, infoW, infoH, "Running...");
+
   while (numPoints < expectedNumberOfPoints) {
     // Serial.println("Inside while loop");
     if (Serial1.available()){
@@ -156,10 +161,17 @@ void receiveDataPackets() {
               // Valid packet received; process the data.
               
               ringdownData dataBuffer = {packet->duration, packet->frequency};
-              Serial.print("Received packet: ");
-              Serial.print(dataBuffer.duration);
-              Serial.print(", ");
-              Serial.println(dataBuffer.frequency);
+              // Serial.print("Received packet: ");
+              // Serial.print(dataBuffer.duration);
+              // Serial.print(", ");
+              // Serial.println(dataBuffer.frequency);
+
+              drawInfoBox();
+              std::string durationBuffer = "Duration: " + std::to_string(dataBuffer.duration);
+              std::string frequencyBuffer = "Frequency: " + std::to_string(dataBuffer.frequency);
+              const char *lines[3] = {"Received Ringdown packet:", durationBuffer.c_str(), frequencyBuffer.c_str()};
+              drawCenteredMultiLine(tft, infoX, infoY, infoW, infoH, lines, 3);
+
               EEPROM.put(eeAddress, dataBuffer);
 
               eeAddress += sizeof(ringdownData);
@@ -183,6 +195,11 @@ void receiveDataPackets() {
       // Serial.println("Serial1 not available");
     }
   }
+
+  WatchdogTimer.end();
+
+  drawMainScreen();
+  drawCenteredText(tft, infoX, infoY, infoW, infoH, "Finished!");
 }
 
 void startMainButton() {
