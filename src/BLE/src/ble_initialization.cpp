@@ -1,6 +1,6 @@
 #include "ble_initialization.h"
 #include "ble_globalValues.h"
-#include "ts_globalValues.h"
+#include "../../TouchScreen/src/ts_globalValues.h"
 
 /**************************************************************************/ /**
  * Initializes the GATT database

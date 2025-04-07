@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 #include "ble_globalValues.h"
-#include "ts_globalValues.h"
+#include "../../TouchScreen/src/ts_globalValues.h"
 
 void btn_state_change_callback() {
     // If the board has a built-in button

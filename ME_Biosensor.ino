@@ -2,12 +2,12 @@
 // Displays results to 7in 800x480 touchscreen
 
 #include <Adafruit_RA8875.h>
-#include "ts_globalValues.h"
-#include "ts_mainScreen_Helper_Functions.h"
-#include "ts_buttonsCoordinates_Helper_Functions.h"
+#include "src/TouchScreen/src/ts_globalValues.h"
+#include "src/TouchScreen/src/ts_mainScreen_Helper_Functions.h"
+#include "src/TouchScreen/src/ts_buttonsCoordinates_Helper_Functions.h"
 
-#include "ble_globalValues.h"
-#include "ble_dataHandler.h"
+#include "src/BLE/src/ble_globalValues.h"
+#include "src/BLE/src/ble_dataHandler.h"
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);

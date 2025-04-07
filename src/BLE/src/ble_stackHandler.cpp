@@ -3,7 +3,7 @@
 #include "ble_globalValues.h"
 #include "ble_initialization.h"
 #include "ble_dataHandler.h"
-#include "ts_globalValues.h"
+#include "../../TouchScreen/src/ts_globalValues.h"
 
 /**************************************************************************/ /**
  * Bluetooth stack event handler

@@ -1,6 +1,6 @@
 #include "Adafruit_RA8875.h"
 #include <string>
-#include "ble_globalValues.h"
+#include "../../BLE/src/ble_globalValues.h"
 
 #ifndef GLOBAL_VALUES
 #define GLOBAL_VALUES
