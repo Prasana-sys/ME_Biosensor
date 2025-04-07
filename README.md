@@ -1,0 +1,3 @@
+Portable Wireless Interrogation System For Magnetoelastic Biosensors
+
+This portable wireless interrogation system allows for the real-time detection and monitoring of Magnetoelastic sensors and uses the “Ringdown” method of detection using a Transmit side and a Receive side. The Ringdown Analysis method characterizes an ME sensor by looking at its vibration duration vs frequency of a time-varying magnetic field. The objectives of this code is to send BLE packets of the generated data over to a Bluetooth capable device to be viewed using a HTML webapp and graph the results obtained from the sensor readout system on a Touch Screen that has an interactive GUI to set/change system control parameters.
