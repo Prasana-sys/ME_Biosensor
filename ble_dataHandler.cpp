@@ -34,15 +34,3 @@ void handle_data_indication() {
     // Send the indication
     sl_bt_gatt_server_send_indication(connection_handle, ringdownData_characteristic_handle, sizeof(newData), (uint8_t *)&newData);
 }
-
-void check_parameters_validity() {
-
-  for (uint8_t i = 0; i < 5; i++){
-    if (parametersRingdown[i] < parameterRanges[i].minValue) {
-      parametersRingdown[i] = parameterRanges[i].minValue;
-    }
-    else if (parametersRingdown[i] > parameterRanges[i].maxValue) {
-      parametersRingdown[i] = parameterRanges[i].maxValue;
-    }
-  }
-}

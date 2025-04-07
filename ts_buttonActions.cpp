@@ -60,8 +60,8 @@ void sweepsMainButton() {
 // }
 
 void resetMainButton() {
-  Serial.println("Resetting Si Labs MCU and Screen");
-  WatchdogTimer.begin(WDOG_PERIOD_1_S);
+  Serial.println("Resetting whole system...");
+  WatchdogTimer.begin(WDOG_PERIOD_257_MS);
 }
 
 void sendParametersPacket() {
@@ -110,13 +110,16 @@ void receiveDataPackets() {
 
   uint8_t buffer[sizeof(ringdownPacket)];
 
+  // Begin Watchdog Timer to monitor if getting data packets correctly
+  WatchdogTimer.begin(WDOG_PERIOD_4_S);
+
   while (numPoints < expectedNumberOfPoints) {
     // Serial.println("Inside while loop");
     if (Serial1.available()){
       // Serial.println("Serial1 available");
       uint8_t inByte = (uint8_t)Serial1.read();
-      Serial.print("Incoming: ");
-      Serial.println(inByte, HEX);
+      // Serial.print("Incoming: ");
+      // Serial.println(inByte, HEX);
       // If we haven't started buffering yet, look for the start-of-frame marker.
       if (index == 0) {
         if (inByte == 0xAA) {
@@ -130,30 +133,30 @@ void receiveDataPackets() {
         if (index == sizeof(ringdownPacket)) {
           // Cast buffer to our packet structure for easier access.
           ringdownPacket *packet = (ringdownPacket *)buffer;
-          Serial.print("Start Frame: ");
-          Serial.println(packet->StartOfFrame, HEX);
-          Serial.print("End Frame: ");
-          Serial.println(packet->EndOfFrame, HEX);
-          Serial.print("Duration: ");
-          Serial.println(packet->duration, HEX);
-          Serial.print("Frequency: ");
-          Serial.println(packet->frequency, HEX);
-          Serial.print("Checksum: ");
-          Serial.println(packet->checksum, HEX);
+          // Serial.print("Start Frame: ");
+          // Serial.println(packet->StartOfFrame, HEX);
+          // Serial.print("End Frame: ");
+          // Serial.println(packet->EndOfFrame, HEX);
+          // Serial.print("Duration: ");
+          // Serial.println(packet->duration, HEX);
+          // Serial.print("Frequency: ");
+          // Serial.println(packet->frequency, HEX);
+          // Serial.print("Checksum: ");
+          // Serial.println(packet->checksum, HEX);
 
           // Validate end-of-frame marker.
           if (packet->EndOfFrame == 0xAA) {
-            // Calculate checksum over all bytes except the checksum field.
-            uint8_t calcChecksum = 0;
-            for (int i = 0; i < sizeof(ringdownPacket) - 1; i++) {
-              calcChecksum += buffer[i];
-            }
+            // // Calculate checksum over all bytes except the checksum field.
+            // uint8_t calcChecksum = 0;
+            // for (int i = 0; i < sizeof(ringdownPacket) - 1; i++) {
+            //   calcChecksum += buffer[i];
+            // }
 
             // if (calcChecksum == packet->checksum) {
               // Valid packet received; process the data.
               
               ringdownData dataBuffer = {packet->duration, packet->frequency};
-              Serial.print("Writing packet: ");
+              Serial.print("Received packet: ");
               Serial.print(dataBuffer.duration);
               Serial.print(", ");
               Serial.println(dataBuffer.frequency);
@@ -161,6 +164,7 @@ void receiveDataPackets() {
 
               eeAddress += sizeof(ringdownData);
               numPoints++;
+              WatchdogTimer.feed(); // Feed timer after receiving a valid packet
               Serial1.flush();
             // }
             // else {
@@ -187,6 +191,8 @@ void startMainButton() {
   // Send UART communication to STM to start ringdown and receive data back
   // Store UART packets in EEPROM
   // Increment numPoints based on incoming data
+
+  numPoints = 0; // Reset numPoints to take in new data
 
   sendParametersPacket();
 
@@ -339,6 +345,9 @@ void numpadOK() {
     }
     
     parametersRingdown[static_cast<int>(selectedParameter)] = newValue;
+
+    check_parameters_validity(true);
+
     // Clear out changing box
     tft.fillRect(310, 200, sParameterButtonW, sParameterButtonH, RA8875_WHITE);
 

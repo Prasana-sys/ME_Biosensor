@@ -62,3 +62,41 @@ int calibrateTSPoint( tsPoint_t * displayPtr, tsPoint_t * screenPtr, const tsMat
 
   return( retValue );
 }
+
+// Checks if parameter values are within valid ranges
+// Checks if number of points is less than maximum number
+// Current maximum = 2000
+void check_parameters_validity(bool onlyLimitCheck) {
+
+  if (!onlyLimitCheck){
+    for (uint8_t i = 0; i < 5; i++){
+      if (parametersRingdown[i] < parameterRanges[i].minValue) {
+        parametersRingdown[i] = parameterRanges[i].minValue;
+      }
+      else if (parametersRingdown[i] > parameterRanges[i].maxValue) {
+        parametersRingdown[i] = parameterRanges[i].maxValue;
+      }
+    }
+  }
+
+  // Start Freq > Stop Freq ? Swap them around
+  if (parametersRingdown[0] > parametersRingdown[1]) {
+    uint32_t temp = parametersRingdown[1];
+    parametersRingdown[1] = parametersRingdown[0];
+    parametersRingdown[0] = temp;
+  }
+
+  int expectedNumberOfPoints = ((parametersRingdown[1] - parametersRingdown[0])/parametersRingdown[2]) + 1;
+
+  if (expectedNumberOfPoints > maxNumPoints){
+    // Adjust step size to accomodate for frequency span and maxNumPoints
+    uint32_t newStepSize = ((parametersRingdown[1] - parametersRingdown[0])/(maxNumPoints-1));
+    if (newStepSize < parameterRanges[2].minValue) {
+      newStepSize = parameterRanges[2].minValue;
+    }
+    else if (newStepSize > parameterRanges[2].maxValue) {
+      newStepSize = parameterRanges[2].maxValue;
+    }
+    parametersRingdown[2] = newStepSize;
+  }
+}

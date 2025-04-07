@@ -68,9 +68,11 @@ typedef struct {
 
 constexpr rangeOfParameter parameterRanges[5] = {{.minValue = 1000, .maxValue = 10000000, .minValueText = "1 kHz", .maxValueText = "10 MHz"},
                                     {.minValue = 1000, .maxValue = 10000000, .minValueText = "1 kHz", .maxValueText = "10 MHz"},
-                                    {.minValue = 100, .maxValue = 100000, .minValueText = "100 Hz", .maxValueText = "100 kHz"},
+                                    {.minValue = 10, .maxValue = 100000, .minValueText = "10 Hz", .maxValueText = "100 kHz"},
                                     {.minValue = 0, .maxValue = 1000, .minValueText = "0 ms", .maxValueText = "1000 ms"},
                                     {.minValue = 1, .maxValue = 10, .minValueText = "1", .maxValueText = "10"}};
+
+void check_parameters_validity (bool onlyLimitCheck = false);
 
 // Settings dimensions
 // isSettingsScreen to check if touch input was on settings screen or Graph Screen.
@@ -116,6 +118,7 @@ typedef struct {
 
 // Data for ringdown graph
 // constexpr int maxNumPoints = ((parameterRanges[1].maxValue - parameterRanges[0].minValue)/parameterRanges[2].minValue) + 1; // 99,991
+const uint32_t maxNumPoints = 2000;
 extern int numPoints;
 extern XYMinMax _xyMinMax;
 
