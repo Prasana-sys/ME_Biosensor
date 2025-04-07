@@ -1,4 +1,5 @@
 #include "ts_globalValues.h"
+#include <cmath>
 
 Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
 
@@ -90,7 +91,7 @@ void check_parameters_validity(bool onlyLimitCheck) {
 
   if (expectedNumberOfPoints > maxNumPoints){
     // Adjust step size to accomodate for frequency span and maxNumPoints
-    uint32_t newStepSize = ((parametersRingdown[1] - parametersRingdown[0])/(maxNumPoints-1));
+    uint32_t newStepSize = ceil((double)(parametersRingdown[1] - parametersRingdown[0])/(maxNumPoints-1));
     if (newStepSize < parameterRanges[2].minValue) {
       newStepSize = parameterRanges[2].minValue;
     }
