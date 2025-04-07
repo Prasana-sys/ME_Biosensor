@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ME Biosensor - Settings & Plot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #output {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    input[type="number"] {
+      width: 150px;
+      margin: 5px;
+    }
+    .error {
+      border-color: red;
+    }
+    #chartCanvas {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>ME Biosensor</h1>
+  <button id="connectBtn">Connect to BLE Device</button>
+  <button id="disconnectBtn">Disconnect</button>
+  <button id="clearLogBtn">Clear Log</button>
+  <button id="clearDataBtn">Clear Data</button>
+  <div id="output">Status: Not connected</div>
+
+  <h2>Parameter Settings</h2>
+  <form id="parametersForm">
+    <label for="startFreq">Start Frequency (Hz):</label>
+    <input type="number" id="startFreq" name="startFreq" min="1000" max="10000000" value="100000"><br>
+
+    <label for="stopFreq">Stop Frequency (Hz):</label>
+    <input type="number" id="stopFreq" name="stopFreq" min="1000" max="10000000" value="1000000"><br>
+
+    <label for="stepSize">Step Size (Hz):</label>
+    <input type="number" id="stepSize" name="stepSize" min="100" max="100000" value="10000"><br>
+
+    <label for="duration">Duration (ms):</label>
+    <input type="number" id="duration" name="duration" min="0" max="1000" value="100"><br>
+
+    <label for="sweeps">Sweeps:</label>
+    <input type="number" id="sweeps" name="sweeps" min="1" max="10" value="1"><br>
+
+    <button type="button" id="sendBtn">Send Parameters</button>
+  </form>
+  <div id="validationMessage" style="color: red;"></div>
+
+  <h2>Plot Data</h2>
+  <label for="plotType">Select Plot Type:</label>
+  <select id="plotType">
+    <option value="line">Line Plot</option>
+    <option value="scatter">Scatter Plot</option>
+  </select>
+  <button id="plotBtn">Plot Data</button>
+  <canvas id="chartCanvas" width="800" height="400"></canvas>
+
+  <!-- Chart.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    let bleDevice, bleServer, ringdownParametersCharacteristic;
+    const output = document.getElementById('output');
+    const connectBtn = document.getElementById('connectBtn');
+    const disconnectBtn = document.getElementById('disconnectBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const plotBtn = document.getElementById('plotBtn');
+    const clearLogBtn = document.getElementById('clearLogBtn');
+    const clearDataBtn = document.getElementById('clearDataBtn');
+    const validationMessage = document.getElementById('validationMessage');
+    let indicationData = []; // Array to store incoming indication data
+
+    // BLE UUIDs (update these to match your device's characteristics)
+    const serviceUUID = 'de8a5aac-a99b-c315-0c80-60d4cbb51224';
+    const ringdownParametersUUID = 'cc143c32-089e-4204-b5a3-e9567c905b84';
+    const characteristicUUID = '5b026510-4088-c297-46d8-be6c736a087a';
+
+    // Connect to BLE device and set up notifications and reads
+    connectBtn.addEventListener('click', async () => {
+      try {
+        output.textContent = 'Requesting BLE device...';
+        bleDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ services: [serviceUUID] }]
+        });
+        output.textContent += '\nConnecting to GATT server...';
+        bleServer = await bleDevice.gatt.connect();
+        output.textContent += '\nGetting service...';
+        const service = await bleServer.getPrimaryService(serviceUUID);
+        output.textContent += '\nGetting characteristics...';
+        
+        // Get ringdownParameters characteristic, read its value, and update the input fields
+        ringdownParametersCharacteristic = await service.getCharacteristic(ringdownParametersUUID);
+        let paramsValue = await ringdownParametersCharacteristic.readValue();
+        updateParametersFields(paramsValue);
+        
+        // Enable indications for ringdownParameters characteristic
+        await ringdownParametersCharacteristic.startNotifications();
+        ringdownParametersCharacteristic.addEventListener('characteristicvaluechanged', handleParametersIndication);
+        
+        // Set up notifications for indication data characteristic
+        const indicationCharacteristic = await service.getCharacteristic(characteristicUUID);
+        await indicationCharacteristic.startNotifications();
+        indicationCharacteristic.addEventListener('characteristicvaluechanged', handleIndication);
+        
+        output.textContent += '\nConnected and ready.';
+      } catch (error) {
+        output.textContent += `\nError: ${error}`;
+      }
+    });
+
+    // Disconnect from the device
+    disconnectBtn.addEventListener('click', () => {
+      if (bleDevice && bleDevice.gatt.connected) {
+        bleDevice.gatt.disconnect();
+        output.textContent += '\nDisconnected from device.';
+      } else {
+        output.textContent += '\nNo device connected.';
+      }
+    });
+
+    // Function to update the parameter input fields from a DataView (20 bytes: 5 x uint32_t, little-endian)
+    function updateParametersFields(dataView) {
+      const startFreq = dataView.getUint32(0, true);
+      const stopFreq = dataView.getUint32(4, true);
+      const stepSize = dataView.getUint32(8, true);
+      const duration = dataView.getUint32(12, true);
+      const sweeps = dataView.getUint32(16, true);
+      
+      document.getElementById('startFreq').value = startFreq;
+      document.getElementById('stopFreq').value = stopFreq;
+      document.getElementById('stepSize').value = stepSize;
+      document.getElementById('duration').value = duration;
+      document.getElementById('sweeps').value = sweeps;
+      validateParameters();
+    }
+
+    // Event handler for ringdownParameters indication events
+    function handleParametersIndication(event) {
+      const dataView = event.target.value;
+      updateParametersFields(dataView);
+      output.textContent += `\nParameters updated via indication.`;
+    }
+
+    // Handle incoming ringdownData indication packets (1 byte duration, 4 bytes frequency in little-endian)
+    function handleIndication(event) {
+      const value = event.target.value;
+      const duration = value.getUint8(0);
+      const frequency = value.getUint32(1, true);
+      indicationData.push({ duration, frequency });
+      output.textContent += `\nReceived: Frequency=${frequency} Hz, Duration=${duration} ms`;
+    }
+
+    // Real-time validation: each time an input changes, its value is checked against the hard-coded valid range.
+    // If the input is out-of-range, an error message is shown and the Send button is disabled.
+    const parametersForm = document.getElementById('parametersForm');
+    parametersForm.addEventListener('input', validateParameters);
+
+    function validateParameters() {
+      let isValid = true;
+      validationMessage.textContent = '';
+
+      const startFreq = parseInt(document.getElementById('startFreq').value, 10);
+      const stopFreq = parseInt(document.getElementById('stopFreq').value, 10);
+      const stepSize = parseInt(document.getElementById('stepSize').value, 10);
+      const duration = parseInt(document.getElementById('duration').value, 10);
+      const sweeps = parseInt(document.getElementById('sweeps').value, 10);
+
+      if (isNaN(startFreq) || startFreq < 1000 || startFreq > 10000000) {
+        isValid = false;
+        validationMessage.textContent += 'Start Frequency must be between 1 kHz and 10 MHz.\n';
+      }
+      if (isNaN(stopFreq) || stopFreq < 1000 || stopFreq > 10000000) {
+        isValid = false;
+        validationMessage.textContent += 'Stop Frequency must be between 1 kHz and 10 MHz.\n';
+      }
+      if (isNaN(stepSize) || stepSize < 100 || stepSize > 100000) {
+        isValid = false;
+        validationMessage.textContent += 'Step Size must be between 100 Hz and 100 kHz.\n';
+      }
+      if (isNaN(duration) || duration < 0 || duration > 1000) {
+        isValid = false;
+        validationMessage.textContent += 'Duration must be between 0 and 1000 ms.\n';
+      }
+      if (isNaN(sweeps) || sweeps < 1 || sweeps > 10) {
+        isValid = false;
+        validationMessage.textContent += 'Sweeps must be between 1 and 10.\n';
+      }
+      sendBtn.disabled = !isValid;
+    }
+
+    // Initial validation on page load
+    validateParameters();
+
+    // When the Send Parameters button is clicked, the parameters are packaged into a 20-byte buffer 
+    // (5 x uint32_t, little-endian) and written to the ringdownParameters characteristic.
+    // Also, the indicationData array is cleared.
+    sendBtn.addEventListener('click', async () => {
+      const startFreq = parseInt(document.getElementById('startFreq').value, 10);
+      const stopFreq = parseInt(document.getElementById('stopFreq').value, 10);
+      const stepSize = parseInt(document.getElementById('stepSize').value, 10);
+      const duration = parseInt(document.getElementById('duration').value, 10);
+      const sweeps = parseInt(document.getElementById('sweeps').value, 10);
+
+      const buffer = new ArrayBuffer(20);
+      const dataView = new DataView(buffer);
+      dataView.setUint32(0, startFreq, true);
+      dataView.setUint32(4, stopFreq, true);
+      dataView.setUint32(8, stepSize, true);
+      dataView.setUint32(12, duration, true);
+      dataView.setUint32(16, sweeps, true);
+
+      try {
+        await ringdownParametersCharacteristic.writeValue(buffer);
+        output.textContent += `\nParameters sent: [${startFreq}, ${stopFreq}, ${stepSize}, ${duration}, ${sweeps}]`;
+        // Clear indication data array after sending parameters
+        indicationData = [];
+      } catch (error) {
+        output.textContent += `\nError sending parameters: ${error}`;
+      }
+    });
+
+    // Plot button creates a chart using Chart.js based on the indicationData array.
+    plotBtn.addEventListener('click', () => {
+      if (indicationData.length === 0) {
+        alert("No data to plot!");
+        return;
+      }
+      const plotType = document.getElementById('plotType').value;
+      const dataPoints = indicationData.map(item => ({ x: item.frequency, y: item.duration }));
+
+      const data = {
+        datasets: [{
+          label: 'Ringdown Data',
+          data: dataPoints,
+          borderColor: 'blue',
+          backgroundColor: 'rgba(0, 0, 255, 0.1)',
+          showLine: (plotType === 'line')
+        }]
+      };
+
+      const config = {
+        type: plotType === 'line' ? 'line' : 'scatter',
+        data: {
+          datasets: [{
+            label: 'Ringdown Data',
+            data: dataPoints, // [{x: frequency, y: duration}, ...]
+            borderColor: 'blue',
+            backgroundColor: 'rgba(0, 0, 255, 0.1)',
+            showLine: (plotType === 'line')
+          }]
+        },
+        options: {
+          scales: {
+            x: {
+              type: 'linear',            // <--- Make sure the x-axis is numeric
+              title: { display: true, text: 'Frequency (Hz)' }
+            },
+            y: {
+              type: 'linear',            // optional but recommended for clarity
+              title: { display: true, text: 'Duration (ms)' }
+            }
+          }
+        }
+      };
+
+      const ctx = document.getElementById('chartCanvas').getContext('2d');
+      if (window.myChart) {
+        window.myChart.destroy();
+      }
+      window.myChart = new Chart(ctx, config);
+    });
+
+    // Clear log button event listener
+    clearLogBtn.addEventListener('click', () => {
+      output.textContent = '';
+    });
+
+    // Clear data button event listener
+    clearDataBtn.addEventListener('click', () => {
+      indicationData = [];
+      output.textContent += '\nIndication data cleared.';
+    });
+  </script>
+</body>
+</html>
