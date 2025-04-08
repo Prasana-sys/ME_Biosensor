@@ -5,6 +5,8 @@
 #ifndef GLOBAL_VALUES
 #define GLOBAL_VALUES
 
+#define EXPO_BACKUP_DEMO_MODE false
+
 // RA8875 Library only supports hardware SPI at this time
 #define RA8875_INT 13
 #define RA8875_CS 4

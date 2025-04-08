@@ -211,11 +211,52 @@ void startMainButton() {
 
   numPoints = 0; // Reset numPoints to take in new data
 
-  sendParametersPacket();
+  if (!EXPO_BACKUP_DEMO_MODE) {
+    // If not in backup mode perform function as normal
+    sendParametersPacket();
 
-  Serial.println("Beginning to wait for packets");
+    Serial.println("Beginning to wait for packets");
 
-  receiveDataPackets();
+    receiveDataPackets();
+  }
+  else {
+    int eeAddress = 0;
+    uint8_t durations[101] = {
+      65, 67, 63, 65, 64, 64, 64, 65, 64, 63, 
+      64, 63, 64, 67, 64, 66, 67, 69, 74, 78, 
+      85, 95, 113, 120, 128, 138, 153, 152, 190, 184, 
+      172, 206, 175, 215, 212, 198, 215, 188, 184, 181, 
+      171, 139, 143, 114, 122, 107, 101, 75, 89, 70, 
+      65, 82, 63, 63, 66, 64, 66, 66, 66, 62, 
+      65, 63, 65, 65, 65, 63, 61, 64, 62, 63, 
+      64, 65, 63, 63, 62, 63, 63, 62, 64, 62, 
+      63, 61, 60, 63, 62, 62, 63, 64, 61, 61, 
+      62, 63, 62, 63, 62, 62, 64, 64, 65, 62, 
+      66
+    };
+
+    drawInfoBox();
+    drawCenteredText(tft, infoX, infoY, infoW, infoH, "Running...");
+
+    for (int i = 0; i <= 100; i++) {
+      uint32_t frequency = 440000 + i * 100;
+
+      ringdownData dataBuffer = {durations[i], frequency};
+
+      EEPROM.put(eeAddress, dataBuffer);
+
+      eeAddress += sizeof(ringdownData);
+      numPoints++;
+
+      Serial.print("Loop: ");
+      Serial.println(i);
+
+      delay (100);
+    }
+
+    drawMainScreen();
+    drawCenteredText(tft, infoX, infoY, infoW, infoH, "Finished!");
+  }
 
   // // For testing Only
   // numPoints = 10;
