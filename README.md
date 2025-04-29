@@ -7,13 +7,13 @@ The objectives of the code in this repo is to send BLE packets of the generated 
 [Link to webapp](https://prasana-sys.github.io/Magnetoelastic_Biosensor_PWIS/)
 
 ## Parts Used
-- Silicon Labs BGM220P Explorer Kit
+- Silicon Labs BGM220P Explorer Kit / xG24 Explorer Kit
 - Adafruit RA8875 TFT Driver
 - Adafruit 7" 800x480 Touch Screen
 
 ## System Design
 
-The system is split into two parts, the STM32 and the BGM220P microcontroller side. They communicate over UART to send two different kinds of packets, ringdown data and ringdown parameters.
+The system is split into two parts, the STM32 and the Si Labs microcontroller side. They communicate over UART to send two different kinds of packets, ringdown data and ringdown parameters.
 
 ![System Design](img/ME_sensor_PWIS.drawio.png)
 
