@@ -1,11 +1,11 @@
 #include "ts_buttonActions.h"
 
 #include <WatchdogTimer.h>
-#include <EEPROM.h>
 #include <string>
 #include "ts_settingsScreen_Helper_Functions.h"
 #include "ts_mainScreen_Helper_Functions.h"
 #include "ts_textCentering_Helper_Functions.h"
+#include "../../BLE/src/ble_globalValues.h"
 
 void doNothing () {
 
@@ -97,7 +97,7 @@ void sendParametersPacket() {
 void receiveDataPackets() {
 
   uint8_t index = 0;
-  int eeAddress = 0; //EEPROM address to start writing from
+  int flashAddress = 0;
   int expectedNumberOfPoints= ((parametersRingdown[1] - parametersRingdown[0])/parametersRingdown[2]) + 1;
 
   #pragma pack(push, 1)  // To condense the struct / remove extra byte padding
@@ -119,12 +119,9 @@ void receiveDataPackets() {
   drawCenteredText(tft, infoX, infoY, infoW, infoH, "Running...");
 
   while (numPoints < expectedNumberOfPoints) {
-    // Serial.println("Inside while loop");
     if (Serial1.available()){
-      // Serial.println("Serial1 available");
       uint8_t inByte = (uint8_t)Serial1.read();
-      // Serial.print("Incoming: ");
-      // Serial.println(inByte, HEX);
+      
       // If we haven't started buffering yet, look for the start-of-frame marker.
       if (index == 0) {
         if (inByte == 0xAA) {
@@ -138,16 +135,6 @@ void receiveDataPackets() {
         if (index == sizeof(ringdownPacket)) {
           // Cast buffer to our packet structure for easier access.
           ringdownPacket *packet = (ringdownPacket *)buffer;
-          // Serial.print("Start Frame: ");
-          // Serial.println(packet->StartOfFrame, HEX);
-          // Serial.print("End Frame: ");
-          // Serial.println(packet->EndOfFrame, HEX);
-          // Serial.print("Duration: ");
-          // Serial.println(packet->duration, HEX);
-          // Serial.print("Frequency: ");
-          // Serial.println(packet->frequency, HEX);
-          // Serial.print("Checksum: ");
-          // Serial.println(packet->checksum, HEX);
 
           // Validate end-of-frame marker.
           if (packet->EndOfFrame == 0xAA) {
@@ -161,10 +148,6 @@ void receiveDataPackets() {
               // Valid packet received; process the data.
               
               ringdownData dataBuffer = {packet->duration, packet->frequency};
-              // Serial.print("Received packet: ");
-              // Serial.print(dataBuffer.duration);
-              // Serial.print(", ");
-              // Serial.println(dataBuffer.frequency);
 
               drawInfoBox();
               std::string durationBuffer = "Duration: " + std::to_string(dataBuffer.duration);
@@ -172,9 +155,16 @@ void receiveDataPackets() {
               const char *lines[3] = {"Received Ringdown packet:", durationBuffer.c_str(), frequencyBuffer.c_str()};
               drawCenteredMultiLine(tft, infoX, infoY, infoW, infoH, lines, 3);
 
-              EEPROM.put(eeAddress, dataBuffer);
+              MSC_Init();
 
-              eeAddress += sizeof(ringdownData);
+              // Write the value into the flash
+              MSC_WriteWord((RINGDOWNDATA_START_ADDRESS + flashAddress), &dataBuffer.duration, 4);
+              MSC_WriteWord((RINGDOWNDATA_START_ADDRESS + flashAddress + 1), &dataBuffer.frequency, 4);
+
+              MSC_Deinit();
+
+              // 2 words (4 bytes each) dedicated to each point's duration and frequency
+              flashAddress += 2;
               numPoints++;
               WatchdogTimer.feed(); // Feed timer after receiving a valid packet
               Serial1.flush();
@@ -206,7 +196,7 @@ void startMainButton() {
   Serial.println("Start button pressed");
 
   // Send UART communication to STM to start ringdown and receive data back
-  // Store UART packets in EEPROM
+  // Store UART packets in Flash
   // Increment numPoints based on incoming data
 
   numPoints = 0; // Reset numPoints to take in new data
@@ -220,7 +210,7 @@ void startMainButton() {
     receiveDataPackets();
   }
   else {
-    int eeAddress = 0;
+    int flashAddress = 0;
     uint8_t durations[101] = {
       65, 67, 63, 65, 64, 64, 64, 65, 64, 63, 
       64, 63, 64, 67, 64, 66, 67, 69, 74, 78, 
@@ -243,9 +233,15 @@ void startMainButton() {
 
       ringdownData dataBuffer = {durations[i], frequency};
 
-      EEPROM.put(eeAddress, dataBuffer);
+      MSC_Init();
 
-      eeAddress += sizeof(ringdownData);
+      // Write the value into the flash
+      MSC_WriteWord((RINGDOWNDATA_START_ADDRESS + flashAddress), &dataBuffer.duration, 4);
+      MSC_WriteWord((RINGDOWNDATA_START_ADDRESS + flashAddress + 1), &dataBuffer.frequency, 4);
+
+      MSC_Deinit();
+
+      flashAddress += 2;
       numPoints++;
 
       Serial.print("Loop: ");
@@ -257,9 +253,6 @@ void startMainButton() {
     drawMainScreen();
     drawCenteredText(tft, infoX, infoY, infoW, infoH, "Finished!");
   }
-
-  // // For testing Only
-  // numPoints = 10;
 
   // Draw the ringdown graph using the provided data
   drawRingdownGraph();

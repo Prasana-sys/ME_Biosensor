@@ -1,6 +1,7 @@
 #include "Adafruit_RA8875.h"
 #include <string>
-#include "../../BLE/src/ble_globalValues.h"
+#include "em_cmu.h"
+#include "em_msc.h"
 
 #ifndef GLOBAL_VALUES
 #define GLOBAL_VALUES
@@ -15,6 +16,15 @@
 #define STM_RES 10 // SCL
 
 // 11 - Tx, 12- Rx
+
+// Reserving last 799,928 bytes (99,991 * 8)
+// padding ringdownData to 8 bytes (instead of orig 5 bytes) to align with word size (word size = 4 bytes)
+#define RINGDOWNDATA_START_ADDRESS ((uint32_t*)0x080BCB48UL)
+#define RINGDOWNDATA_END_ADDRESS ((uint32_t*)FLASH_MEM_END) // 0x0817FFFFUL
+
+// Total Ringdowndata size: (0x0817_FFFF) - (0x080B_CB48) + 1 = C34B8 (799,928 bytes)
+
+// Flash Page size = 0x2000 (8192 Bytes)
 
 extern Adafruit_RA8875 tft;
 extern uint16_t tx, ty;
@@ -102,25 +112,13 @@ extern uint32_t newValue;
 enum class changingParameter {None = -1, Start_Freq, Stop_Freq, Step_Size, Duration, Sweeps};
 extern changingParameter selectedParameter;
 
-// // Example data for the ringdown graph
-// // (Replace these with actual x and y coordinate arrays and adjust mapping ranges)
-// const int numPoints = 50;
-// extern int dataX[numPoints];
-// extern int dataY[numPoints];
-
-// // Define mapping ranges for data (adjust these based on actual data's min/max)
-// // TODO: Need to declare as extern when having actual data
-// const int xMin = 0, xMax = 100;
-// const int yMin = 0, yMax = 120;
-
 typedef struct {
     uint32_t xMin, xMax; // Frequency
     uint8_t yMin, yMax; // Duration
 } XYMinMax;
 
 // Data for ringdown graph
-// constexpr int maxNumPoints = ((parameterRanges[1].maxValue - parameterRanges[0].minValue)/parameterRanges[2].minValue) + 1; // 99,991
-const uint32_t maxNumPoints = 2000;
+constexpr int maxNumPoints = ((parameterRanges[1].maxValue - parameterRanges[0].minValue)/parameterRanges[2].minValue) + 1; // 99,991
 extern int numPoints;
 extern XYMinMax _xyMinMax;
 

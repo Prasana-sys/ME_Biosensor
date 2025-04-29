@@ -1,8 +1,8 @@
 #include "ts_globalValues.h"
 #include <string>
-#include <EEPROM.h>
 #include "ts_textCentering_Helper_Functions.h"
 #include "ts_mainScreen_Helper_Functions.h"
+#include "../../BLE/src/ble_globalValues.h"
 
 void drawGraphAxes()
 {
@@ -87,7 +87,8 @@ void getXYMinMax(){
 
     ringdownData ringdownDataBuffer;
 
-    EEPROM.get(0, ringdownDataBuffer);
+    ringdownDataBuffer.duration = RINGDOWNDATA_START_ADDRESS[0];
+    ringdownDataBuffer.frequency = RINGDOWNDATA_START_ADDRESS[1];
 
     // Initialize min/max using the first data point.
     _xyMinMax.xMin = ringdownDataBuffer.frequency;
@@ -95,8 +96,9 @@ void getXYMinMax(){
     _xyMinMax.yMin = ringdownDataBuffer.duration;
     _xyMinMax.yMax = ringdownDataBuffer.duration;
 
-    for (int eeAddress = sizeof(ringdownData); eeAddress < numPoints * sizeof(ringdownData); eeAddress += sizeof(ringdownData)) {
-        EEPROM.get(eeAddress, ringdownDataBuffer);
+    for (int flashAddress = 2; flashAddress < numPoints * 2; flashAddress += 2) {
+        ringdownDataBuffer.duration = RINGDOWNDATA_START_ADDRESS[flashAddress];
+        ringdownDataBuffer.frequency = RINGDOWNDATA_START_ADDRESS[flashAddress + 1];
 
         uint32_t freq = ringdownDataBuffer.frequency;
         uint8_t  dur  = ringdownDataBuffer.duration;
@@ -124,10 +126,14 @@ void drawRingdownGraph()
     Serial.println("Drawing Graph");
 
     // Draw the graph by mapping the data points to the graph area
-    for (int eeAddress = 0; eeAddress < (numPoints * sizeof(ringdownData)) - sizeof(ringdownData); eeAddress += sizeof(ringdownData)) {
+    for (int flashAddress = 0; flashAddress < (numPoints * 2) - 2; flashAddress += 2) {
 
-        EEPROM.get(eeAddress, ringdownDataBuffer);
-        EEPROM.get(eeAddress + sizeof(ringdownData), ringdownDataBuffer_1);
+        // 1st point
+        ringdownDataBuffer.duration = RINGDOWNDATA_START_ADDRESS[flashAddress];
+        ringdownDataBuffer.frequency = RINGDOWNDATA_START_ADDRESS[flashAddress + 1];
+        // 2nd point to draw line towards from 1st point
+        ringdownDataBuffer_1.duration = RINGDOWNDATA_START_ADDRESS[flashAddress + 2];
+        ringdownDataBuffer_1.frequency = RINGDOWNDATA_START_ADDRESS[flashAddress + 3];
 
         // Map x values to the graph width
         int x1 = graphX + map(ringdownDataBuffer.frequency, _xyMinMax.xMin, _xyMinMax.xMax, 0, graphW);

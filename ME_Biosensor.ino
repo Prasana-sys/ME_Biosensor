@@ -1,7 +1,10 @@
+// xG24 Explorer Kit
+// Needs Si Labs Arduino Core Bootloader burned to chip first
 // Send ME sensor data over indictaions to mobile device
 // Displays results to 7in 800x480 touchscreen
 
 #include <Adafruit_RA8875.h>
+#include "em_chip.h"
 #include "src/TouchScreen/src/ts_globalValues.h"
 #include "src/TouchScreen/src/ts_mainScreen_Helper_Functions.h"
 #include "src/TouchScreen/src/ts_buttonsCoordinates_Helper_Functions.h"
@@ -10,6 +13,13 @@
 #include "src/BLE/src/ble_dataHandler.h"
 
 void setup() {
+
+  // Chip errata
+  CHIP_Init();
+
+  // Enable MSC Clock
+  CMU_ClockEnable(cmuClock_MSC, true);
+
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LED_BUILTIN_INACTIVE);
 

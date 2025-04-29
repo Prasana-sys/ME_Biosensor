@@ -1,7 +1,6 @@
 #include "ble_dataHandler.h"
 
 #include <Arduino.h>
-#include <EEPROM.h>
 #include "ble_globalValues.h"
 #include "../../TouchScreen/src/ts_globalValues.h"
 
@@ -23,13 +22,13 @@ void handle_data_indication() {
   
     clientReadyForNextIndication = false;
 
-    int eeAddress = indicationIndex * sizeof(ringdownData);
-  
-    // ringdownData newData = { .duration = indicationIndex + 1, .frequency = 400000 + (100 * indicationIndex) };
-    // ringdownData newData = _ringdownData[indicationIndex];
+    // RINGDOWNDATA_START_ADDRESS[flashAddress] => duration
+    // RINGDOWNDATA_START_ADDRESS[flashAddress + 1] => frequency
+    int flashAddress = indicationIndex * 2;
 
     ringdownData newData;
-    EEPROM.get(eeAddress, newData);
+    newData.duration = RINGDOWNDATA_START_ADDRESS[flashAddress];
+    newData.frequency = RINGDOWNDATA_START_ADDRESS[flashAddress+1];
   
     // Send the indication
     sl_bt_gatt_server_send_indication(connection_handle, ringdownData_characteristic_handle, sizeof(newData), (uint8_t *)&newData);
