@@ -217,22 +217,22 @@
       const duration = parseInt(document.getElementById('duration').value, 10);
       const sweeps = parseInt(document.getElementById('sweeps').value, 10);
 
-      const maxNumPoints = 2000;
-      let expectedNumberOfPoints = Math.floor((stopFreq - startFreq) / stepSize) + 1;
-      if (expectedNumberOfPoints > maxNumPoints) {
-        let newStepSize = Math.ceil((stopFreq - startFreq) / (maxNumPoints - 1));
-        const stepSizeMin = parseInt(document.getElementById('stepSize').min, 10);
-        const stepSizeMax = parseInt(document.getElementById('stepSize').max, 10);
-        if (newStepSize < stepSizeMin) {
-          newStepSize = stepSizeMin;
-        } else if (newStepSize > stepSizeMax) {
-          newStepSize = stepSizeMax;
-        }
-        stepSize = newStepSize;
-        document.getElementById('stepSize').value = newStepSize;
-        expectedNumberOfPoints = Math.floor((stopFreq - startFreq) / newStepSize) + 1;
-        output.textContent += `\nAdjusted step size to ${newStepSize} to limit points to ${expectedNumberOfPoints}`;
-      }
+      // const maxNumPoints = 2000;
+      // let expectedNumberOfPoints = Math.floor((stopFreq - startFreq) / stepSize) + 1;
+      // if (expectedNumberOfPoints > maxNumPoints) {
+      //   let newStepSize = Math.ceil((stopFreq - startFreq) / (maxNumPoints - 1));
+      //   const stepSizeMin = parseInt(document.getElementById('stepSize').min, 10);
+      //   const stepSizeMax = parseInt(document.getElementById('stepSize').max, 10);
+      //   if (newStepSize < stepSizeMin) {
+      //     newStepSize = stepSizeMin;
+      //   } else if (newStepSize > stepSizeMax) {
+      //     newStepSize = stepSizeMax;
+      //   }
+      //   stepSize = newStepSize;
+      //   document.getElementById('stepSize').value = newStepSize;
+      //   expectedNumberOfPoints = Math.floor((stopFreq - startFreq) / newStepSize) + 1;
+      //   output.textContent += `\nAdjusted step size to ${newStepSize} to limit points to ${expectedNumberOfPoints}`;
+      // }
 
       const buffer = new ArrayBuffer(20);
       const dataView = new DataView(buffer);
