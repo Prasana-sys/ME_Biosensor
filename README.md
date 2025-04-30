@@ -22,3 +22,20 @@ When the BGM220P boots, the BLE stack initializes a GATT database that includes 
 ![BLE GATT PROFILE](img/BLE%20GATT%20Profile.png)
 
 More info in doc/PWIS_Expo_Poster
+
+## Development Environment
+
+- Arduino IDE Version: 2.3.5
+- Si Labs Arduino Core Version: 2.3.0
+- Adafruit GFX Library Version: 1.12.0
+- Adafruit RA8875 Library Version: 1.4.4
+
+Follow Si Labs Arduino Core installation and bootloader burn procedures to instantiate a new Si Labs microcontroller.
+
+- [Si Labs Arduino Core Installation](https://github.com/SiliconLabs/arduino?tab=readme-ov-file#installation)
+
+- [Si Labs Arduino Core Bootloader](https://github.com/SiliconLabs/arduino?tab=readme-ov-file#getting-started)
+
+Main .ino script is in the root folder with this README. Other cpp and header files are included in src/. The file structure in src/ is to be maintained for Arduino IDE to know which files to compile and link to the main script when verifying and uploading to target device. Those cpp and header files can also be placed in the root folder for easier development if needed.
+
+Also take a look /doc/xG24_pinout_bug.md for important information.

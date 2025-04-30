@@ -9,13 +9,33 @@
 #define EXPO_BACKUP_DEMO_MODE false
 
 // RA8875 Library only supports hardware SPI at this time
-#define RA8875_INT 13
+
+/* ************************************************************************************** 
+
+For xG24 explorer kit, there is currently a bug in Si Labs Arduino Core Version 2.3.0.
+The Serial1 pins (Tx1 and Rx1) are connected to INT and PWM pins on the board respectively, 
+instead of the pins which are marked as TX and RX.
+
+A bug report was sent and is currently being investigated.
+https://github.com/SiliconLabs/arduino/issues/123
+
+Also look at /doc/xG24_pinout_bug.md
+
+In future core versions, if this bug were to be fixed, this pinout should change.
+Proposed line change:
+
+#define RA8875_INT 13 // INT on xG24
+
+// 11 - Tx, 12- Rx
+
+***************************************************************************************** */
+#define RA8875_INT 11 // MikroBUS-TX on xG24
 #define RA8875_CS 4
 #define RA8875_RESET 9 // Connected to SDA pin currently
 
 #define STM_RES 10 // SCL
 
-// 11 - Tx, 12- Rx
+// 13 - Tx, 14- Rx
 
 // Reserving last 799,928 bytes (99,991 * 8)
 // padding ringdownData to 8 bytes (instead of orig 5 bytes) to align with word size (word size = 4 bytes)
